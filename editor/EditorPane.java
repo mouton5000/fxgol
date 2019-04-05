@@ -1,41 +1,49 @@
 package editor;
 
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import editor.global.Params;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class EditorPane extends Pane {
+class EditorPane extends Pane {
 
     Map<Integer, Map<Integer, AliveCircle>> alives;
 
-    public EditorPane() {
-        for(int i = 0; i < Params.WIDTH; i++) {
-            Line col = new Line(i * Params.SIZE, 0, i * Params.SIZE, Params.SIZE * Params.WIDTH);
-            Line lin = new Line( 0, i * Params.SIZE, Params.SIZE * Params.WIDTH,i * Params.SIZE);
+    EditorPane() {
+        for(int i = 0; i < Params.DEFAULT_NB_CELLS_PER_LINE; i++) {
+            Line col = new Line(i * Params.DEFAULT_CELLS_WIDTH, 0, i * Params.DEFAULT_CELLS_WIDTH, Params.DEFAULT_CELLS_WIDTH * Params.DEFAULT_NB_CELLS_PER_LINE);
+            Line lin = new Line( 0, i * Params.DEFAULT_CELLS_WIDTH, Params.DEFAULT_CELLS_WIDTH * Params.DEFAULT_NB_CELLS_PER_LINE,i * Params.DEFAULT_CELLS_WIDTH);
             this.getChildren().addAll(lin, col);
         }
 
         this.setOnMouseClicked(mouseEvent -> {
-            System.out.println(this);
-            int x = (int)(mouseEvent.getX() / Params.SIZE);
-            int y = (int)(mouseEvent.getY() / Params.SIZE);
+            int column = (int)(mouseEvent.getX() / Params.DEFAULT_CELLS_WIDTH);
+            int line = (int)(mouseEvent.getY() / Params.DEFAULT_CELLS_WIDTH);
 
-            double cx = (x + 0.5) * Params.SIZE;
-            double cy = (y + 0.5) * Params.SIZE;
+            double cx = (column + 0.5) * Params.DEFAULT_CELLS_WIDTH;
+            double cy = (line + 0.5) * Params.DEFAULT_CELLS_WIDTH;
 
-            AliveCircle circle = new AliveCircle(cx, cy, (double)(Params.SIZE / 2 - 2));
+            AliveCircle circle = new AliveCircle(cx, cy, (double)(Params.DEFAULT_CELLS_WIDTH / 2 - 2), line, column);
             this.getChildren().add(circle);
         });
 
-
     }
 
-//    public addCell(int i, int j){
-//
-//    }
+    boolean[][] getCells(int offsetLine, int offsetColumn, int viewerNbCellsPerLine){
+        boolean[][] cells = new boolean[viewerNbCellsPerLine][viewerNbCellsPerLine];
+
+        for(Node child : this.getChildren()){
+            if(child instanceof AliveCircle){
+                AliveCircle circle = (AliveCircle)child;
+                if(circle.line >= offsetLine && circle.line < offsetLine + viewerNbCellsPerLine
+                && circle.column >= offsetColumn && circle.column < offsetColumn + viewerNbCellsPerLine)
+                    cells[circle.line - offsetLine][circle.column - offsetColumn] = true;
+            }
+        }
+
+        return cells;
+    }
+
 }

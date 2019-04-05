@@ -2,12 +2,9 @@ package viewer.view;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.input.KeyCode;
-import viewer.global.Params;
-import viewer.model.GameOfLife2;
+import viewer.model.GameOfLife;
 
 public class Viewer extends Group{
 
@@ -16,29 +13,27 @@ public class Viewer extends Group{
     private AnimationTimer timer;
     private GameOfLifeGraphicsContext gc;
 
-    public Viewer() {
+    public Viewer(final int cellSize, boolean[][] cells, final double fps) {
+
+        final int nbCellsPerLine = cells.length;
+        final int windowsWidth = cellSize * nbCellsPerLine;
 
         // Create the Pane
-        Canvas pane = new Canvas(Params.SIZE * Params.WIDTH, Params.SIZE * Params.WIDTH);
+        Canvas pane = new Canvas(windowsWidth, windowsWidth);
         this.getChildren().add(pane);
 
         started = false;
 
-        boolean[][] cells = new boolean[Params.SIZE][Params.SIZE];
-        for(int i = 0; i < Params.SIZE; i++)
-            for(int j = 0; j < Params.SIZE; j++)
-                cells[i][j] = Math.random() < 0.2;
+        gc = new GameOfLifeGraphicsContext(pane.getGraphicsContext2D(), cellSize, nbCellsPerLine);
 
-        gc = new GameOfLifeGraphicsContext(pane.getGraphicsContext2D());
-
-        GameOfLife2 gol = new GameOfLife2(gc, Params.SIZE, cells);
+        GameOfLife gol = new GameOfLife(gc, nbCellsPerLine, cells);
 
         timer = new AnimationTimer() {
             private long lastUpdate = 0;
 
             @Override
             public void handle(long currentTime) {
-                if(Params.FPS != -1 && (currentTime - lastUpdate) / 1000000 <= Params.FPS)
+                if(fps != -1 && (currentTime - lastUpdate) / 1000000 <= 1000 / fps)
                     return;
                 lastUpdate = currentTime;
                 if(gol.generation <= 1000)

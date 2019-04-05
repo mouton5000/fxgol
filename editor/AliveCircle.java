@@ -6,10 +6,10 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
 public class AliveCircle extends Group {
-    int i;
-    int j;
+    int line;
+    int column;
 
-    public AliveCircle(double centerX, double centerY, double radius) {
+    public AliveCircle(double centerX, double centerY, double radius, int line, int column) {
         Circle circle = new Circle(centerX, centerY, radius);
         Rectangle rect = new Rectangle(centerX - radius - 3, centerY - radius - 3, 2 * radius + 6, 2 * radius + 6);
         rect.setFill(Color.TRANSPARENT);
@@ -18,10 +18,12 @@ public class AliveCircle extends Group {
         this.getChildren().add(circle);
 
         this.setOnMouseClicked(mouseEvent -> {
-            System.out.println(this);
             ((EditorPane)this.getParent()).getChildren().remove(this);
             mouseEvent.consume();
         });
+
+        this.line = line;
+        this.column = column;
     }
 
 }
