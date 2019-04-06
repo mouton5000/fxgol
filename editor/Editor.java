@@ -1,25 +1,29 @@
 package editor;
 
 import editor.global.Params;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.controlsfx.control.StatusBar;
 import viewer.view.Viewer;
 
 import java.util.Optional;
 
-public class Editor extends Group {
+public class Editor extends BorderPane {
 
     private int offsetLine = 0;
     private int offsetColumn = 0;
     private int viewerNbCellsPerLine = Params.DEFAULT_NB_CELLS_PER_LINE;
     private int viewerCellsWidth = Params.DEFAULT_CELLS_WIDTH;
     private double fps = Params.DEFAULT_FPS;
+
+    private StatusBar statusBar;
+    private Label statusBarOffsetLabel;
 
     public Editor() {
         EditorPane pane = new EditorPane();
@@ -79,8 +83,35 @@ public class Editor extends Group {
 
         pane.setPrefSize(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH, Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
 
-        VBox vbox = new VBox();
-        vbox.getChildren().addAll(bar, pane);
-        this.getChildren().add(vbox);
+        statusBar = new StatusBar();
+        statusBar.setPrefHeight(Params.STATUSBAR_PREF_HEIGHT);
+        clearStatusBarText();
+
+        statusBarOffsetLabel = new Label();
+        this.setStatusBarOriginCoordinates(0, 0);
+
+        statusBarOffsetLabel.setMinHeight(statusBar.getPrefHeight());
+        statusBarOffsetLabel.setMaxHeight(statusBar.getPrefHeight());
+        statusBarOffsetLabel.setAlignment(Pos.CENTER);
+
+        statusBar.getLeftItems().add(statusBarOffsetLabel);
+        statusBar.getLeftItems().add(new Separator(Orientation.VERTICAL));
+
+        this.setTop(bar);
+        this.setCenter(pane);
+        this.setBottom(statusBar);
+
+    }
+
+    public void clearStatusBarText(){
+        statusBar.setText("");
+    }
+
+    public void setStatusBarCoordinates(int line, int column){
+        statusBar.setText("Current : (" + line + ", " + column + ")");
+    }
+
+    public void setStatusBarOriginCoordinates(int line, int column){
+        statusBarOffsetLabel.setText("Origin: (" + line + ", " + column + ")");
     }
 }

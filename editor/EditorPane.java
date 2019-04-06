@@ -18,15 +18,26 @@ class EditorPane extends Pane {
             this.getChildren().addAll(lin, col);
         }
 
-        this.setOnMouseClicked(mouseEvent -> {
-            int column = (int)(mouseEvent.getX() / Params.DEFAULT_CELLS_WIDTH);
-            int line = (int)(mouseEvent.getY() / Params.DEFAULT_CELLS_WIDTH);
+        this.setOnMouseClicked(event -> {
+            int column = (int)(event.getX() / Params.DEFAULT_CELLS_WIDTH);
+            int line = (int)(event.getY() / Params.DEFAULT_CELLS_WIDTH);
 
             double cx = (column + 0.5) * Params.DEFAULT_CELLS_WIDTH;
             double cy = (line + 0.5) * Params.DEFAULT_CELLS_WIDTH;
 
             AliveCircle circle = new AliveCircle(cx, cy, (double)(Params.DEFAULT_CELLS_WIDTH / 2 - 2), line, column);
             this.getChildren().add(circle);
+        });
+
+        this.setOnMouseMoved(event -> {
+            int column = (int)(event.getX() / Params.DEFAULT_CELLS_WIDTH);
+            int line = (int)(event.getY() / Params.DEFAULT_CELLS_WIDTH);
+
+            ((Editor)this.getParent()).setStatusBarCoordinates(line, column);
+        });
+
+        this.setOnMouseExited(event -> {
+            ((Editor)this.getParent()).clearStatusBarText();
         });
 
     }
