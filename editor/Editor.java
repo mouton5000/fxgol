@@ -15,8 +15,8 @@ import java.util.Optional;
 
 public class Editor extends Group {
 
-    private int offsetLine = 1;
-    private int offsetColumn = 1;
+    private int offsetLine = 0;
+    private int offsetColumn = 0;
     private int viewerNbCellsPerLine = Params.DEFAULT_NB_CELLS_PER_LINE;
     private int viewerCellsWidth = Params.DEFAULT_CELLS_WIDTH;
     private double fps = Params.DEFAULT_FPS;
