@@ -3,11 +3,9 @@ package editor;
 import editor.global.Params;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 import viewer.view.Viewer;
@@ -22,11 +20,17 @@ public class Editor extends BorderPane {
     private int viewerCellsWidth = Params.DEFAULT_CELLS_WIDTH;
     private double fps = Params.DEFAULT_FPS;
 
+    private EditorPane pane;
+
     private StatusBar statusBar;
     private Label statusBarOffsetLabel;
 
+
+    private Double dragX;
+    private Double dragY;
+
     public Editor() {
-        EditorPane pane = new EditorPane();
+        pane = new EditorPane();
         MenuBar bar = new MenuBar();
 
         Menu runMenu = new Menu("Run");
@@ -80,8 +84,35 @@ public class Editor extends BorderPane {
         runMenu.getItems().addAll(runItem, settingsItem);
         bar.getMenus().add(runMenu);
 
+        this.setOnMouseDragged(event -> {
+            if(event.isStillSincePress())
+                return;
 
-        pane.setPrefSize(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH, Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
+            double x = event.getX();
+            double y = event.getY();
+            System.out.println("Drag : "+ event.getX() + " " + event.getY());
+            if(dragX == null){
+                dragX = x;
+                dragY = y;
+            }
+            else {
+                this.translate(x - dragX, y - dragY);
+                dragX = x;
+                dragY = y;
+            }
+            event.consume();
+        });
+
+        this.setOnMousePressed(event -> {
+            System.out.println("Press : " + event.getX() + " " + event.getY());
+            this.dragX = event.getX();
+            this.dragY = event.getY();
+        });
+
+        this.setMinWidth(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
+        this.setMinHeight(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
+        pane.setTranslateX(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH / 2D);
+        pane.setTranslateY(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH / 2D);
 
         statusBar = new StatusBar();
         statusBar.setPrefHeight(Params.STATUSBAR_PREF_HEIGHT);
@@ -97,10 +128,9 @@ public class Editor extends BorderPane {
         statusBar.getLeftItems().add(statusBarOffsetLabel);
         statusBar.getLeftItems().add(new Separator(Orientation.VERTICAL));
 
-        this.setTop(bar);
         this.setCenter(pane);
+        this.setTop(bar);
         this.setBottom(statusBar);
-
     }
 
     public void clearStatusBarText(){
@@ -114,4 +144,9 @@ public class Editor extends BorderPane {
     public void setStatusBarOriginCoordinates(int line, int column){
         statusBarOffsetLabel.setText("Origin: (" + line + ", " + column + ")");
     }
+
+    private void translate(double dx, double dy) {
+        pane.translate(dx, dy);
+    }
+
 }
