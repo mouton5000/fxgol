@@ -9,8 +9,8 @@ public class GameOfLifeGraphicsContext {
     private double cellsWidth;
     private double offsetX;
     private double offsetY;
-    private final double windowsWidth;
-    private final double windowsHeight;
+    private double windowsWidth;
+    private double windowsHeight;
 
 
     public GameOfLifeGraphicsContext(GraphicsContext gc, int cellsWidth,
@@ -66,5 +66,13 @@ public class GameOfLifeGraphicsContext {
             offsetY = centery * this.cellsWidth - this.windowsHeight / 2;
         }
 
+    }
+
+    public void setWindowsWidth(double windowsWidth) {
+        this.windowsWidth = windowsWidth;
+    }
+
+    public void setWindowsHeight(double windowsHeight) {
+        this.windowsHeight = windowsHeight;
     }
 }

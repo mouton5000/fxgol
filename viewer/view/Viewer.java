@@ -13,6 +13,8 @@ public class Viewer extends Group{
     private boolean started;
 
     private AnimationTimer timer;
+
+    private Canvas pane;
     private GameOfLifeGraphicsContext gc;
 
     private int generation;
@@ -28,7 +30,12 @@ public class Viewer extends Group{
         final int windowsHeight = Math.max(MIN_HEIGHT, cellSize * nbCellsPerColumn);
 
         // Create the Pane
-        Canvas pane = new Canvas(windowsWidth, windowsHeight);
+        pane = new Canvas(windowsWidth, windowsHeight);
+//        this.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
+//            pane.setHeight(newValue.getHeight());
+//            pane.setWidth(newValue.getWidth());
+//        });
+
         this.getChildren().add(pane);
 
         started = false;
@@ -108,4 +115,15 @@ public class Viewer extends Group{
         );
 
     }
+
+    public void setWidth(double width){
+        this.pane.setWidth(width);
+        this.gc.setWindowsWidth(width);
+    }
+
+    public void setHeight(double height){
+        this.pane.setHeight(height);
+        this.gc.setWindowsHeight(height);
+    }
+
 }

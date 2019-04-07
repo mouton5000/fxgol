@@ -54,7 +54,13 @@ public class Editor extends BorderPane {
             // Set the Title of the Stage
             stage.setTitle("FXGol Viewer");
             // Display the Stage
+
             stage.show();
+
+            scene.widthProperty().addListener((observable, oldValue, newValue) -> viewer.setWidth(newValue.doubleValue()));
+            scene.heightProperty().addListener((observable, oldValue, newValue) -> viewer.setHeight(newValue.doubleValue()));
+
+
             viewer.requestFocus();
         });
         MenuItem settingsItem = new MenuItem("Run settings");
