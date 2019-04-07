@@ -56,21 +56,21 @@ class Settings {
         infiniteGridLabel.setAlignment(Pos.CENTER_LEFT);
         CheckBox infiniteGridCheckBox = new CheckBox();
 
-        Label offsetLineLabel = new Label("Upper line of Viewer : ");
-        offsetLineLabel.setAlignment(Pos.CENTER_LEFT);
-        TextField offsetLineTextField = new TextField(String.valueOf(offsetLine));
+        Label leftLimitLabel = new Label("Leftmost column of Viewer : ");
+        leftLimitLabel.setAlignment(Pos.CENTER_LEFT);
+        TextField leftLimitTextField = new TextField(String.valueOf(offsetColumn));
 
-        Label offsetColumnLabel = new Label("Leftmost column of Viewer : ");
-        offsetColumnLabel.setAlignment(Pos.CENTER_LEFT);
-        TextField offsetColumnTextField = new TextField(String.valueOf(offsetColumn));
+        Label rightLimitLabel = new Label("Rightmost column of Viewer : ");
+        rightLimitLabel.setAlignment(Pos.CENTER_LEFT);
+        TextField rightLimitTextField = new TextField(String.valueOf(offsetColumn + nbCellsPerLine - 1));
 
-        Label nbCellsPerLineLabel = new Label("Nb cells per line of Viewer : ");
-        nbCellsPerLineLabel.setAlignment(Pos.CENTER_LEFT);
-        TextField nbCellsPerLineTextField = new TextField(String.valueOf(nbCellsPerLine));
+        Label topLimitLabel = new Label("Upper line of Viewer : ");
+        topLimitLabel.setAlignment(Pos.CENTER_LEFT);
+        TextField topLimitTextField = new TextField(String.valueOf(offsetLine));
 
-        Label nbCellsPerColumnLabel = new Label("Nb cells per column of Viewer : ");
-        nbCellsPerColumnLabel.setAlignment(Pos.CENTER_LEFT);
-        TextField nbCellsPerColumnTextField = new TextField(String.valueOf(nbCellsPerColumn));
+        Label bottomLimitLabel = new Label("Lowermost line of Viewer : ");
+        bottomLimitLabel.setAlignment(Pos.CENTER_LEFT);
+        TextField bottomLimitTextField = new TextField(String.valueOf(offsetLine + nbCellsPerColumn - 1));
 
         Label cellsWidthLabel = new Label("Width of cells of Viewer : ");
         cellsWidthLabel.setAlignment(Pos.CENTER_LEFT);
@@ -83,10 +83,10 @@ class Settings {
         Node[] toAdd = {
                 infiniteGridLabel, infiniteGridCheckBox,
                 allCellsLabel, allCellsCheckBox,
-                offsetLineLabel, offsetLineTextField,
-                offsetColumnLabel, offsetColumnTextField,
-                nbCellsPerLineLabel, nbCellsPerLineTextField,
-                nbCellsPerColumnLabel, nbCellsPerColumnTextField,
+                leftLimitLabel, leftLimitTextField,
+                rightLimitLabel, rightLimitTextField,
+                topLimitLabel, topLimitTextField,
+                bottomLimitLabel, bottomLimitTextField,
                 cellsWidthLabel, cellsWidthTextField,
                 fpsLabel, fpsTextField};
 
@@ -96,44 +96,44 @@ class Settings {
         }
 
         infiniteGridCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            offsetLineTextField.setDisable(newValue || allCellsCheckBox.isSelected());
-            offsetColumnTextField.setDisable(newValue || allCellsCheckBox.isSelected());
-            nbCellsPerLineTextField.setDisable(newValue || allCellsCheckBox.isSelected());
-            nbCellsPerColumnTextField.setDisable(newValue || allCellsCheckBox.isSelected());
+            topLimitTextField.setDisable(newValue || allCellsCheckBox.isSelected());
+            leftLimitTextField.setDisable(newValue || allCellsCheckBox.isSelected());
+            rightLimitTextField.setDisable(newValue || allCellsCheckBox.isSelected());
+            bottomLimitTextField.setDisable(newValue || allCellsCheckBox.isSelected());
             allCellsCheckBox.setDisable(newValue);
         });
 
         allCellsCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            offsetLineTextField.setDisable(newValue);
-            offsetColumnTextField.setDisable(newValue);
-            nbCellsPerLineTextField.setDisable(newValue);
-            nbCellsPerColumnTextField.setDisable(newValue);
+            topLimitTextField.setDisable(newValue);
+            leftLimitTextField.setDisable(newValue);
+            rightLimitTextField.setDisable(newValue);
+            bottomLimitTextField.setDisable(newValue);
         });
 
         allCellsCheckBox.setSelected(allCells);
         infiniteGridCheckBox.setSelected(infiniteGrid);
 
-        offsetLineTextField.textProperty().addListener((observableValue, old, value) -> {
+        topLimitTextField.textProperty().addListener((observableValue, old, value) -> {
                     if(!value.matches("-?\\d*"))
-                        offsetLineTextField.setText(old);
+                        topLimitTextField.setText(old);
                 }
         );
 
-        offsetColumnTextField.textProperty().addListener((observableValue, old, value) -> {
+        leftLimitTextField.textProperty().addListener((observableValue, old, value) -> {
                     if(!value.matches("-?\\d*"))
-                        offsetColumnTextField.setText(old);
+                        leftLimitTextField.setText(old);
                 }
         );
 
-        nbCellsPerLineTextField.textProperty().addListener((observableValue, old, value) -> {
-                    if(!value.matches("\\d*"))
-                        nbCellsPerLineTextField.setText(old);
+        rightLimitTextField.textProperty().addListener((observableValue, old, value) -> {
+                    if(!value.matches("-?\\d*"))
+                        rightLimitTextField.setText(old);
                 }
         );
 
-        nbCellsPerColumnTextField.textProperty().addListener((observableValue, old, value) -> {
-                    if(!value.matches("\\d*"))
-                        nbCellsPerColumnTextField.setText(old);
+        bottomLimitTextField.textProperty().addListener((observableValue, old, value) -> {
+                    if(!value.matches("-?\\d*"))
+                        bottomLimitTextField.setText(old);
                 }
         );
 
@@ -165,17 +165,17 @@ class Settings {
                 Integer nCellsWidth = null;
                 Double nFps = null;
 
-                if(!offsetLineTextField.getText().equals(""))
-                    nOffsetLine = Integer.valueOf(offsetLineTextField.getText());
+                if(!leftLimitTextField.getText().equals(""))
+                    nOffsetColumn = Integer.valueOf(leftLimitTextField.getText());
 
-                if(!offsetColumnTextField.getText().equals(""))
-                    nOffsetColumn = Integer.valueOf(offsetColumnTextField.getText());
+                if(!rightLimitTextField.getText().equals(""))
+                    nNbCellsPerLine = Integer.valueOf(rightLimitTextField.getText()) - (nOffsetColumn == null ? offsetColumn : nOffsetColumn) + 1;
 
-                if(!nbCellsPerLineTextField.getText().equals(""))
-                    nNbCellsPerLine = Integer.valueOf(nbCellsPerLineTextField.getText());
+                if(!topLimitTextField.getText().equals(""))
+                    nOffsetLine = Integer.valueOf(topLimitTextField.getText());
 
-                if(!nbCellsPerColumnTextField.getText().equals(""))
-                    nNbCellsPerColumn = Integer.valueOf(nbCellsPerColumnTextField.getText());
+                if(!bottomLimitTextField.getText().equals(""))
+                    nNbCellsPerColumn = Integer.valueOf(bottomLimitTextField.getText()) - (nOffsetLine == null ? offsetLine : nOffsetLine) + 1;
 
                 if(!cellsWidthTextField.getText().equals(""))
                     nCellsWidth = Integer.valueOf(cellsWidthTextField.getText());
