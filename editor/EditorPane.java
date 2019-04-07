@@ -26,7 +26,6 @@ class EditorPane extends Pane {
         this.setOnMouseClicked(event -> {
             if(!event.isStillSincePress())
                 return;
-            System.out.println("CLick : " + event.getX() + " " + event.getY());
             int column = (int)Math.floor(event.getX() / Params.DEFAULT_CELLS_WIDTH);
             int line = (int)Math.floor(event.getY() / Params.DEFAULT_CELLS_WIDTH);
 
@@ -122,11 +121,8 @@ class EditorPane extends Pane {
     private void checkLinesAndColumns() {
         ObservableList<Node> children = this.getChildren();
 
-        System.out.println(maxWidth + " "  +maxHeight);
         int nbLines = (int) (maxHeight / (Params.DEFAULT_CELLS_WIDTH)) + 4;
         int nbColumns = (int) (maxWidth / (Params.DEFAULT_CELLS_WIDTH)) + 4;
-
-        System.out.println(maxWidth +" " + maxHeight + " " + nbLines + " " + nbColumns);
 
         double h, w;
 

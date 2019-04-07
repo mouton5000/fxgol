@@ -108,7 +108,6 @@ public class Editor extends BorderPane {
 
             double x = event.getX();
             double y = event.getY();
-            System.out.println("Drag : "+ event.getX() + " " + event.getY());
             if(dragX == null){
                 dragX = x;
                 dragY = y;
@@ -122,7 +121,6 @@ public class Editor extends BorderPane {
         });
 
         this.setOnMousePressed(event -> {
-            System.out.println("Press : " + event.getX() + " " + event.getY());
             this.dragX = event.getX();
             this.dragY = event.getY();
         });
