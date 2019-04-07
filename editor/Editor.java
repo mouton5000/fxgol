@@ -14,11 +14,14 @@ import java.util.Optional;
 
 public class Editor extends BorderPane {
 
-    private int offsetLine = 0;
-    private int offsetColumn = 0;
+    private boolean viewerInfiniteSize = true;
+    private boolean viewerAllCells = false;
+    private int viewerOffsetLine = 0;
+    private int viewerOffsetColumn = 0;
     private int viewerNbCellsPerLine = Params.DEFAULT_NB_CELLS_PER_LINE;
+    private int viewerNbCellsPerColumn = Params.DEFAULT_NB_CELLS_PER_COLUMN;
     private int viewerCellsWidth = Params.DEFAULT_CELLS_WIDTH;
-    private double fps = Params.DEFAULT_FPS;
+    private double vierwerFps = Params.DEFAULT_FPS;
 
     private EditorPane pane;
 
@@ -39,9 +42,12 @@ public class Editor extends BorderPane {
 
             Stage stage = new Stage();
 
-            boolean[][] cells = pane.getCells(offsetLine, offsetColumn, viewerNbCellsPerLine);
+            boolean[][] cells = pane.getCells(
+                    viewerInfiniteSize, viewerAllCells,
+                    viewerOffsetLine, viewerOffsetColumn,
+                    viewerNbCellsPerLine, viewerNbCellsPerColumn);
 
-            Viewer viewer = new Viewer(viewerCellsWidth, cells, fps);
+            Viewer viewer = new Viewer(viewerCellsWidth, cells, viewerInfiniteSize, vierwerFps);
             Scene scene = new Scene(viewer);
             // Add the Scene to the Stage
             stage.setScene(scene);
@@ -54,31 +60,43 @@ public class Editor extends BorderPane {
         MenuItem settingsItem = new MenuItem("Run settings");
         settingsItem.setOnAction(actionEvent -> {
             Dialog<Settings> dialog = Settings.getDialog(
-                    this.offsetLine,
-                    this.offsetColumn,
+                    this.viewerInfiniteSize,
+                    this.viewerAllCells,
+                    this.viewerOffsetLine,
+                    this.viewerOffsetColumn,
                     this.viewerNbCellsPerLine,
+                    this.viewerNbCellsPerColumn,
                     this.viewerCellsWidth,
-                    this.fps
+                    this.vierwerFps
                     );
             Optional<Settings> result = dialog.showAndWait();
 
             if(result.isPresent()){
                 Settings settings = result.get();
 
-                if(settings.offsetLine != -1)
-                    this.offsetLine = settings.offsetLine;
+                if(settings.infiniteSize != null)
+                    this.viewerInfiniteSize = settings.infiniteSize;
 
-                if(settings.offsetColumn != -1)
-                    this.offsetColumn = settings.offsetColumn;
+                if(settings.allCells != null)
+                    this.viewerAllCells = settings.allCells;
 
-                if(settings.viewerNbCellsPerLine != -1)
-                    this.viewerNbCellsPerLine = settings.viewerNbCellsPerLine;
+                if(settings.offsetLine != null)
+                    this.viewerOffsetLine = settings.offsetLine;
 
-                if(settings.viewerCellsWidth != -1)
-                    this.viewerCellsWidth = settings.viewerCellsWidth;
+                if(settings.offsetColumn != null)
+                    this.viewerOffsetColumn = settings.offsetColumn;
 
-                if(settings.fps != -1)
-                    this.fps = settings.fps;
+                if(settings.nbCellsPerLine != null)
+                    this.viewerNbCellsPerLine = settings.nbCellsPerLine;
+
+                if(settings.nbCellsPerColumn != null)
+                    this.viewerNbCellsPerColumn = settings.nbCellsPerColumn;
+
+                if(settings.cellsWidth != null)
+                    this.viewerCellsWidth = settings.cellsWidth;
+
+                if(settings.fps != null)
+                    this.vierwerFps = settings.fps;
             }
         });
         runMenu.getItems().addAll(runItem, settingsItem);

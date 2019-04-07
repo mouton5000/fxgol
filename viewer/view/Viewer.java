@@ -4,7 +4,9 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
+import viewer.model.FiniteGameOfLife;
 import viewer.model.GameOfLife;
+import viewer.model.InfiniteGameOfLife;
 
 public class Viewer extends Group{
 
@@ -13,20 +15,35 @@ public class Viewer extends Group{
     private AnimationTimer timer;
     private GameOfLifeGraphicsContext gc;
 
-    public Viewer(final int cellSize, boolean[][] cells, final double fps) {
+    private int generation;
 
-        final int nbCellsPerLine = cells.length;
-        final int windowsWidth = cellSize * nbCellsPerLine;
+    private static final int MIN_WIDTH = 500;
+    private static final int MIN_HEIGHT = 500;
+
+    public Viewer(final int cellSize, boolean[][] cells, final boolean infiniteGrid, final double fps) {
+
+        final int nbCellsPerLine = cells[0].length;
+        final int nbCellsPerColumn = cells.length;
+        final int windowsWidth = Math.max(MIN_WIDTH, cellSize * nbCellsPerLine);
+        final int windowsHeight = Math.max(MIN_HEIGHT, cellSize * nbCellsPerColumn);
 
         // Create the Pane
-        Canvas pane = new Canvas(windowsWidth, windowsWidth);
+        Canvas pane = new Canvas(windowsWidth, windowsHeight);
         this.getChildren().add(pane);
 
         started = false;
 
-        gc = new GameOfLifeGraphicsContext(pane.getGraphicsContext2D(), cellSize, nbCellsPerLine);
+        gc = new GameOfLifeGraphicsContext(
+                pane.getGraphicsContext2D(), cellSize,
+                windowsWidth, windowsHeight);
 
-        GameOfLife gol = new GameOfLife(gc, nbCellsPerLine, cells);
+        GameOfLife gol;
+        if(infiniteGrid){
+            gol = new InfiniteGameOfLife(gc, cells);
+        }
+        else
+            gol = new FiniteGameOfLife(gc, cells);
+
 
         timer = new AnimationTimer() {
             private long lastUpdate = 0;
@@ -36,8 +53,10 @@ public class Viewer extends Group{
                 if(fps != -1 && (currentTime - lastUpdate) / 1000000 <= 1000 / fps)
                     return;
                 lastUpdate = currentTime;
-                if(gol.generation <= 1000)
+                if(generation <= 1000) {
                     gol.nextGeneration();
+                    generation++;
+                }
                 else
                     timer.stop();
             }

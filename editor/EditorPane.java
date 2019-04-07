@@ -56,13 +56,40 @@ class EditorPane extends Pane {
 
     }
 
-    boolean[][] getCells(int offsetLine, int offsetColumn, int viewerNbCellsPerLine){
-        boolean[][] cells = new boolean[viewerNbCellsPerLine][viewerNbCellsPerLine];
+    boolean[][] getCells(boolean infiniteSize, boolean allCells,
+                         int offsetLine, int offsetColumn,
+                         int viewerNbCellsPerLine, int viewerNbCellsPerColumn){
+
+        if(infiniteSize || allCells){
+            int minLine = Integer.MAX_VALUE;
+            int minColumn = Integer.MAX_VALUE;
+            int maxLine = Integer.MIN_VALUE;
+            int maxColumn = Integer.MIN_VALUE;
+
+            for(Node child : this.getChildren()) {
+                if (child instanceof AliveCircle) {
+                    AliveCircle circle = (AliveCircle) child;
+                    minLine = Math.min(minLine, circle.line);
+                    maxLine = Math.max(maxLine, circle.line);
+                    minColumn = Math.min(minColumn, circle.column);
+                    maxColumn = Math.max(maxColumn, circle.column);
+                }
+            }
+
+            offsetLine = minLine;
+            offsetColumn = minColumn;
+            viewerNbCellsPerColumn = maxLine - minLine + 1;
+            viewerNbCellsPerLine = maxColumn - minColumn + 1;
+        }
+
+
+        boolean[][] cells = new boolean[viewerNbCellsPerColumn][viewerNbCellsPerLine];
+
 
         for(Node child : this.getChildren()){
             if(child instanceof AliveCircle){
                 AliveCircle circle = (AliveCircle)child;
-                if(circle.line >= offsetLine && circle.line < offsetLine + viewerNbCellsPerLine
+                if(circle.line >= offsetLine && circle.line < offsetLine + viewerNbCellsPerColumn
                 && circle.column >= offsetColumn && circle.column < offsetColumn + viewerNbCellsPerLine)
                     cells[circle.line - offsetLine][circle.column - offsetColumn] = true;
             }
