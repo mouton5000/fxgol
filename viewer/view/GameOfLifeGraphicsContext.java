@@ -62,8 +62,8 @@ public class GameOfLifeGraphicsContext {
                 this.cellsWidth += ((this.cellsWidth >= 10) ? 10 : 1) * zoom;
             else if (zoom < 0 && this.cellsWidth > 1)
                 this.cellsWidth += ((this.cellsWidth > 10) ? 10 : 1) * zoom;
-            offsetX = centerx * this.cellsWidth - this.windowsWidth / 2;
-            offsetY = centery * this.cellsWidth - this.windowsHeight / 2;
+            offsetX = Math.round(centerx * this.cellsWidth - this.windowsWidth / 2);
+            offsetY = Math.round(centery * this.cellsWidth - this.windowsHeight / 2);
         }
 
     }
