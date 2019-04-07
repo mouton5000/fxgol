@@ -23,11 +23,40 @@ public class GameOfLifeGraphicsContext {
         this.windowsHeight = windowsHeight;
     }
 
+    public void drawBorder(int line, int column, int width, int height){
+        gc.setFill(Color.BLUE);
+        for(int i = 0; i < width; i++) {
+            gc.fillRect(
+                    (column + i) * cellsWidth - offsetX,
+                    line * cellsWidth - offsetY,
+                    cellsWidth,
+                    cellsWidth);
+            gc.fillRect(
+                    (column + i) * cellsWidth - offsetX,
+                    (line + height -  1) * cellsWidth - offsetY,
+                    cellsWidth,
+                    cellsWidth);
+        }
+
+        for(int i = 0; i < height; i++) {
+            gc.fillRect(
+                    column * cellsWidth - offsetX,
+                    (line + i) * cellsWidth - offsetY,
+                    cellsWidth,
+                    cellsWidth);
+            gc.fillRect(
+                    (column + width - 1) * cellsWidth - offsetX,
+                    (line + i) * cellsWidth - offsetY,
+                    cellsWidth,
+                    cellsWidth);
+        }
+    }
+
     public void addCell(int line, int column){
         gc.setFill(Color.BLACK);
         gc.fillRect(
-                (column - 1) * cellsWidth - offsetX,
-                (line - 1) * cellsWidth - offsetY,
+                column * cellsWidth - offsetX,
+                line * cellsWidth - offsetY,
                 cellsWidth,
                 cellsWidth);
     }
@@ -35,8 +64,8 @@ public class GameOfLifeGraphicsContext {
     public void clearCell(int line, int column){
         gc.setFill(Color.WHITE);
         gc.fillRect(
-                (column - 1) * cellsWidth - offsetX,
-                (line - 1) * cellsWidth - offsetY,
+                column * cellsWidth - offsetX,
+                line * cellsWidth - offsetY,
                 cellsWidth,
                 cellsWidth);
     }

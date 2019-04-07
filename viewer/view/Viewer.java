@@ -26,8 +26,8 @@ public class Viewer extends Group{
 
         final int nbCellsPerLine = cells[0].length;
         final int nbCellsPerColumn = cells.length;
-        final int windowsWidth = Math.max(MIN_WIDTH, cellSize * nbCellsPerLine);
-        final int windowsHeight = Math.max(MIN_HEIGHT, cellSize * nbCellsPerColumn);
+        final int windowsWidth = Math.max(MIN_WIDTH, cellSize * (nbCellsPerLine + 2));
+        final int windowsHeight = Math.max(MIN_HEIGHT, cellSize * (nbCellsPerColumn + 2));
 
         // Create the Pane
         pane = new Canvas(windowsWidth, windowsHeight);

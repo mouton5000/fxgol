@@ -20,6 +20,8 @@ public class FiniteGameOfLife implements GameOfLife{
                 if(cells[line - 1][column - 1])
                     addCell(line, column);
             }
+
+        gc.drawBorder(0, 0, nbCellsPerLine + 2, nbCellsPerColumn + 2);
     }
 
     private void addCell(int line, int column){
@@ -77,6 +79,8 @@ public class FiniteGameOfLife implements GameOfLife{
             for (int column = 1; column < nbCellsPerLine + 1; column++)
                 if((cells[line][column] & 1) == 1)
                     gc.addCell(line, column);
+
+        gc.drawBorder(0, 0, nbCellsPerLine + 2, nbCellsPerColumn + 2);
     }
 
 
