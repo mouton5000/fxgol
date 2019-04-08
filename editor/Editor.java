@@ -10,6 +10,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 import viewer.view.Viewer;
@@ -33,7 +34,6 @@ public class Editor extends BorderPane {
     private Label statusBarOffsetLabel;
 
     private EditorMenu editorMenu;
-
 
     private Double dragX;
     private Double dragY;
@@ -154,6 +154,8 @@ public class Editor extends BorderPane {
 
             this.dragX = event.getX();
             this.dragY = event.getY();
+
+            event.consume();
         });
 
         this.setMinWidth(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);

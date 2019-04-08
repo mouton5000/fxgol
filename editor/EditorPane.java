@@ -2,9 +2,12 @@ package editor;
 
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import editor.global.Params;
+import javafx.scene.shape.Rectangle;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -19,6 +22,10 @@ class EditorPane extends Pane {
     private double maxWidth;
     private double maxHeight;
 
+    private double pressedX;
+    private double pressedY;
+    private Rectangle selectByDraggingRectangle;
+
     EditorPane() {
         lines = new LinkedList<>();
         columns = new LinkedList<>();
@@ -26,8 +33,11 @@ class EditorPane extends Pane {
         this.setOnMouseClicked(event -> {
             if(!event.isStillSincePress())
                 return;
-            int column = (int)Math.floor(event.getX() / Params.DEFAULT_CELLS_WIDTH);
-            int line = (int)Math.floor(event.getY() / Params.DEFAULT_CELLS_WIDTH);
+
+            this.selectByDraggingRectangle.setVisible(false);
+
+            int column = getColumn(event.getX());
+            int line = getLine(event.getY());
 
             double cx = (column + 0.5) * Params.DEFAULT_CELLS_WIDTH;
             double cy = (line + 0.5) * Params.DEFAULT_CELLS_WIDTH;
@@ -47,12 +57,82 @@ class EditorPane extends Pane {
             ((Editor)this.getParent()).clearStatusBarText();
         });
 
+        this.setOnMouseDragged(event -> {
+            if(event.getButton() != MouseButton.PRIMARY)
+                return;
+
+            selectByDraggingRectangle.setX(Math.min(event.getX(), pressedX));
+            selectByDraggingRectangle.setY(Math.min(event.getY(), pressedY));
+            selectByDraggingRectangle.setWidth(Math.abs(event.getX() - pressedX));
+            selectByDraggingRectangle.setHeight(Math.abs(event.getY() - pressedY));
+
+            event.consume();
+        });
+
+        this.setOnMousePressed(event -> {
+            if(event.getButton() != MouseButton.PRIMARY)
+                return;
+
+            pressedX = event.getX();
+            pressedY = event.getY();
+
+            selectByDraggingRectangle.setWidth(0);
+            selectByDraggingRectangle.setHeight(0);
+            selectByDraggingRectangle.setVisible(true);
+
+            event.consume();
+        });
+
+        this.setOnMouseReleased(event -> {
+
+            if(event.getButton() != MouseButton.PRIMARY)
+                return;
+
+            int c1 = getColumn(selectByDraggingRectangle.getX());
+            int l1 = getLine(selectByDraggingRectangle.getY());
+            int c2 = getColumn(selectByDraggingRectangle.getX() + selectByDraggingRectangle.getWidth()) + 1;
+            int l2 = getLine(selectByDraggingRectangle.getY() + selectByDraggingRectangle.getHeight()) + 1;
+
+            double x = getX(c1);
+            double y = getY(l1);
+            double w = getX(c2) - x;
+            double h = getY(l2) - y;
+
+            selectByDraggingRectangle.setX(x);
+            selectByDraggingRectangle.setY(y);
+            selectByDraggingRectangle.setWidth(w);
+            selectByDraggingRectangle.setHeight(h);
+
+            event.consume();
+        });
+
         this.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
             double width = newVal.getWidth();
             double height = newVal.getHeight();
             updateWidthAndHeight(width, height);
         });
 
+        selectByDraggingRectangle = new Rectangle(0, 0, 0, 0);
+        selectByDraggingRectangle.setFill(new Color(0.7, 0.7, 0.7, 0.6));
+        selectByDraggingRectangle.setVisible(false);
+        this.getChildren().add(selectByDraggingRectangle);
+
+    }
+
+    double getX(int line){
+        return line * Params.DEFAULT_CELLS_WIDTH;
+    }
+
+    int getColumn(double x){
+        return (int)Math.floor(x / Params.DEFAULT_CELLS_WIDTH);
+    }
+
+    double getY(int column){
+        return column * Params.DEFAULT_CELLS_WIDTH;
+    }
+
+    int getLine(double y){
+        return (int)Math.floor(y / Params.DEFAULT_CELLS_WIDTH);
     }
 
     boolean[][] getCells(boolean infiniteSize, boolean allCells,
