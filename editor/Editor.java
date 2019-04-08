@@ -5,6 +5,10 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
@@ -27,6 +31,8 @@ public class Editor extends BorderPane {
 
     private StatusBar statusBar;
     private Label statusBarOffsetLabel;
+
+    private EditorMenu editorMenu;
 
 
     private Double dragX;
@@ -63,6 +69,7 @@ public class Editor extends BorderPane {
 
             viewer.requestFocus();
         });
+
         MenuItem settingsItem = new MenuItem("Run settings");
         settingsItem.setOnAction(actionEvent -> {
             Dialog<Settings> dialog = Settings.getDialog(
@@ -106,10 +113,25 @@ public class Editor extends BorderPane {
             }
         });
         runMenu.getItems().addAll(runItem, settingsItem);
-        bar.getMenus().add(runMenu);
+
+        Menu selectionMenu = new Menu("Selection");
+        MenuItem xMirrorItem = new MenuItem("Mirror (horizontally)");
+        xMirrorItem.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
+        MenuItem yMirrorItem = new MenuItem("Mirror (vertically)");
+        yMirrorItem.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
+        MenuItem rotateItem = new MenuItem("Rotate (90 Clockwize)");
+        rotateItem.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+        MenuItem oneStepItem = new MenuItem("Step one generation");
+        oneStepItem.setAccelerator(new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN));
+
+        selectionMenu.getItems().addAll(xMirrorItem, yMirrorItem, rotateItem, oneStepItem);
+        bar.getMenus().addAll(runMenu, selectionMenu);
 
         this.setOnMouseDragged(event -> {
             if(event.isStillSincePress())
+                return;
+
+            if(event.getButton() != MouseButton.SECONDARY)
                 return;
 
             double x = event.getX();
@@ -127,6 +149,9 @@ public class Editor extends BorderPane {
         });
 
         this.setOnMousePressed(event -> {
+            if(event.getButton() != MouseButton.SECONDARY)
+                return;
+
             this.dragX = event.getX();
             this.dragY = event.getY();
         });
@@ -150,9 +175,12 @@ public class Editor extends BorderPane {
         statusBar.getLeftItems().add(statusBarOffsetLabel);
         statusBar.getLeftItems().add(new Separator(Orientation.VERTICAL));
 
+        editorMenu = new EditorMenu();
+
         this.setCenter(pane);
         this.setTop(bar);
         this.setBottom(statusBar);
+        this.setLeft(editorMenu);
     }
 
     public void clearStatusBarText(){
