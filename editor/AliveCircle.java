@@ -18,8 +18,11 @@ public class AliveCircle extends Group {
         this.getChildren().add(circle);
 
         this.setOnMouseClicked(mouseEvent -> {
-            ((EditorPane)this.getParent()).getChildren().remove(this);
-            mouseEvent.consume();
+            if(!mouseEvent.isControlDown()){
+                ((EditorPane)this.getParent()).getChildren().remove(this);
+                mouseEvent.consume();
+            }
+
         });
 
         this.line = line;

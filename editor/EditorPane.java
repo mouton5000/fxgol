@@ -34,16 +34,26 @@ class EditorPane extends Pane {
             if(!event.isStillSincePress())
                 return;
 
-            this.clearSelectionRectangles();
+            if(!event.isControlDown()) {
 
-            int column = getColumn(event.getX());
-            int line = getLine(event.getY());
+                this.clearSelectionRectangles();
 
-            double cx = (column + 0.5) * Params.DEFAULT_CELLS_WIDTH;
-            double cy = (line + 0.5) * Params.DEFAULT_CELLS_WIDTH;
+                int column = getColumn(event.getX());
+                int line = getLine(event.getY());
 
-            AliveCircle circle = new AliveCircle(cx, cy, (double)(Params.DEFAULT_CELLS_WIDTH / 2 - 2), line, column);
-            this.getChildren().add(circle);
+                double cx = (column + 0.5) * Params.DEFAULT_CELLS_WIDTH;
+                double cy = (line + 0.5) * Params.DEFAULT_CELLS_WIDTH;
+
+                AliveCircle circle = new AliveCircle(cx, cy, (double) (Params.DEFAULT_CELLS_WIDTH / 2 - 2), line, column);
+                this.getChildren().add(circle);
+            }
+            else{
+                Rectangle selectionRectangle = addNewSelectionRectangle();
+
+                int c1 = getColumn(event.getX());
+                int l1 = getLine(event.getY());
+                resizeCurrentSelectionRectangle(l1, c1, l1 + 1, c1 + 1);
+            }
         });
 
         this.setOnMouseMoved(event -> {
