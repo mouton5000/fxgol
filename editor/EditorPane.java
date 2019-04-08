@@ -24,6 +24,7 @@ class EditorPane extends Pane {
     private double pressedX;
     private double pressedY;
     private LinkedList<Rectangle> selectionRectangles;
+    private Selection selection;
 
     EditorPane() {
         lines = new LinkedList<>();
@@ -57,11 +58,14 @@ class EditorPane extends Pane {
         });
 
         this.setOnMouseDragged(event -> {
+
+            if(event.isStillSincePress())
+                return;
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
 
             Rectangle selectionRectangle = this.getCurrentSelectionRectangle();
-            
+
             selectionRectangle.setX(Math.min(event.getX(), pressedX));
             selectionRectangle.setY(Math.min(event.getY(), pressedY));
             selectionRectangle.setWidth(Math.abs(event.getX() - pressedX));
@@ -71,6 +75,7 @@ class EditorPane extends Pane {
         });
 
         this.setOnMousePressed(event -> {
+
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
 
@@ -80,17 +85,14 @@ class EditorPane extends Pane {
             if(!event.isControlDown())
                 clearSelectionRectangles();
 
-            Rectangle selectionRectangle = new Rectangle();
-            selectionRectangle.setWidth(0);
-            selectionRectangle.setHeight(0);
-            selectionRectangle.setFill(new Color(0.3, 0.3, 0.3, 0.6));
-            selectionRectangles.add(selectionRectangle);
-            this.getChildren().add(selectionRectangle);
+            this.addNewSelectionRectangle();
             event.consume();
         });
 
         this.setOnMouseReleased(event -> {
 
+            if(event.isStillSincePress())
+                return;
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
 
@@ -100,16 +102,7 @@ class EditorPane extends Pane {
             int l1 = getLine(selectionRectangle.getY());
             int c2 = getColumn(selectionRectangle.getX() + selectionRectangle.getWidth()) + 1;
             int l2 = getLine(selectionRectangle.getY() + selectionRectangle.getHeight()) + 1;
-
-            double x = getX(c1);
-            double y = getY(l1);
-            double w = getX(c2) - x;
-            double h = getY(l2) - y;
-
-            selectionRectangle.setX(x);
-            selectionRectangle.setY(y);
-            selectionRectangle.setWidth(w);
-            selectionRectangle.setHeight(h);
+            this.resizeCurrentSelectionRectangle(l1, c1, l2, c2);
 
             event.consume();
         });
@@ -133,6 +126,46 @@ class EditorPane extends Pane {
         for(Rectangle selectByDraggingRectangle : selectionRectangles)
             this.getChildren().remove(selectByDraggingRectangle);
         selectionRectangles.clear();
+        selection = null;
+    }
+
+    private Rectangle addNewSelectionRectangle(){
+        Rectangle selectionRectangle = new Rectangle();
+        selectionRectangle.setWidth(0);
+        selectionRectangle.setHeight(0);
+        selectionRectangle.setFill(new Color(0.3, 0.3, 0.3, 0.6));
+        selectionRectangles.add(selectionRectangle);
+        this.getChildren().add(selectionRectangle);
+        return selectionRectangle;
+    }
+
+    private void resizeCurrentSelectionRectangle(int l1, int c1, int l2, int c2){
+        Rectangle selectionRectangle = this.getCurrentSelectionRectangle();
+
+        double x = getX(c1);
+        double y = getY(l1);
+        double w = getX(c2) - x;
+        double h = getY(l2) - y;
+
+        selectionRectangle.setX(x);
+        selectionRectangle.setY(y);
+        selectionRectangle.setWidth(w);
+        selectionRectangle.setHeight(h);
+
+        boolean[][] cells = new boolean[l2 - l1][c2 - c1];
+        for(Node child : this.getChildren()) {
+            if (child instanceof AliveCircle) {
+                AliveCircle circle = (AliveCircle) child;
+                if(circle.line >= l1 && circle .line < l2 && circle.column >= c1 && circle.column < c2)
+                    cells[circle.line - l1][circle.column - c1] = true;
+            }
+        }
+        Selection newselection = new SimpleSelection(l1, c1, cells);
+
+        if(selection == null)
+            selection = newselection;
+        else
+            selection = selection.extend(newselection);
     }
 
     private double getX(int line){
