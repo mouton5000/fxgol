@@ -10,7 +10,6 @@ import editor.global.Params;
 import javafx.scene.shape.Rectangle;
 
 import java.util.LinkedList;
-import java.util.Map;
 
 class EditorPane extends Pane {
 
@@ -24,7 +23,7 @@ class EditorPane extends Pane {
 
     private double pressedX;
     private double pressedY;
-    private Rectangle selectByDraggingRectangle;
+    private LinkedList<Rectangle> selectionRectangles;
 
     EditorPane() {
         lines = new LinkedList<>();
@@ -34,7 +33,7 @@ class EditorPane extends Pane {
             if(!event.isStillSincePress())
                 return;
 
-            this.selectByDraggingRectangle.setVisible(false);
+            this.clearSelectionRectangles();
 
             int column = getColumn(event.getX());
             int line = getLine(event.getY());
@@ -61,10 +60,12 @@ class EditorPane extends Pane {
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
 
-            selectByDraggingRectangle.setX(Math.min(event.getX(), pressedX));
-            selectByDraggingRectangle.setY(Math.min(event.getY(), pressedY));
-            selectByDraggingRectangle.setWidth(Math.abs(event.getX() - pressedX));
-            selectByDraggingRectangle.setHeight(Math.abs(event.getY() - pressedY));
+            Rectangle selectionRectangle = this.getCurrentSelectionRectangle();
+            
+            selectionRectangle.setX(Math.min(event.getX(), pressedX));
+            selectionRectangle.setY(Math.min(event.getY(), pressedY));
+            selectionRectangle.setWidth(Math.abs(event.getX() - pressedX));
+            selectionRectangle.setHeight(Math.abs(event.getY() - pressedY));
 
             event.consume();
         });
@@ -76,10 +77,15 @@ class EditorPane extends Pane {
             pressedX = event.getX();
             pressedY = event.getY();
 
-            selectByDraggingRectangle.setWidth(0);
-            selectByDraggingRectangle.setHeight(0);
-            selectByDraggingRectangle.setVisible(true);
+            if(!event.isControlDown())
+                clearSelectionRectangles();
 
+            Rectangle selectionRectangle = new Rectangle();
+            selectionRectangle.setWidth(0);
+            selectionRectangle.setHeight(0);
+            selectionRectangle.setFill(new Color(0.3, 0.3, 0.3, 0.6));
+            selectionRectangles.add(selectionRectangle);
+            this.getChildren().add(selectionRectangle);
             event.consume();
         });
 
@@ -88,20 +94,22 @@ class EditorPane extends Pane {
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
 
-            int c1 = getColumn(selectByDraggingRectangle.getX());
-            int l1 = getLine(selectByDraggingRectangle.getY());
-            int c2 = getColumn(selectByDraggingRectangle.getX() + selectByDraggingRectangle.getWidth()) + 1;
-            int l2 = getLine(selectByDraggingRectangle.getY() + selectByDraggingRectangle.getHeight()) + 1;
+            Rectangle selectionRectangle = this.getCurrentSelectionRectangle();
+
+            int c1 = getColumn(selectionRectangle.getX());
+            int l1 = getLine(selectionRectangle.getY());
+            int c2 = getColumn(selectionRectangle.getX() + selectionRectangle.getWidth()) + 1;
+            int l2 = getLine(selectionRectangle.getY() + selectionRectangle.getHeight()) + 1;
 
             double x = getX(c1);
             double y = getY(l1);
             double w = getX(c2) - x;
             double h = getY(l2) - y;
 
-            selectByDraggingRectangle.setX(x);
-            selectByDraggingRectangle.setY(y);
-            selectByDraggingRectangle.setWidth(w);
-            selectByDraggingRectangle.setHeight(h);
+            selectionRectangle.setX(x);
+            selectionRectangle.setY(y);
+            selectionRectangle.setWidth(w);
+            selectionRectangle.setHeight(h);
 
             event.consume();
         });
@@ -112,26 +120,34 @@ class EditorPane extends Pane {
             updateWidthAndHeight(width, height);
         });
 
-        selectByDraggingRectangle = new Rectangle(0, 0, 0, 0);
-        selectByDraggingRectangle.setFill(new Color(0.7, 0.7, 0.7, 0.6));
-        selectByDraggingRectangle.setVisible(false);
-        this.getChildren().add(selectByDraggingRectangle);
+        selectionRectangles = new LinkedList<>();
+
 
     }
 
-    double getX(int line){
+    private Rectangle getCurrentSelectionRectangle(){
+        return selectionRectangles.getLast();
+    }
+
+    private void clearSelectionRectangles(){
+        for(Rectangle selectByDraggingRectangle : selectionRectangles)
+            this.getChildren().remove(selectByDraggingRectangle);
+        selectionRectangles.clear();
+    }
+
+    private double getX(int line){
         return line * Params.DEFAULT_CELLS_WIDTH;
     }
 
-    int getColumn(double x){
+    private int getColumn(double x){
         return (int)Math.floor(x / Params.DEFAULT_CELLS_WIDTH);
     }
 
-    double getY(int column){
+    private double getY(int column){
         return column * Params.DEFAULT_CELLS_WIDTH;
     }
 
-    int getLine(double y){
+    private int getLine(double y){
         return (int)Math.floor(y / Params.DEFAULT_CELLS_WIDTH);
     }
 
