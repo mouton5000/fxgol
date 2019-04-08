@@ -31,7 +31,6 @@ public class Editor extends BorderPane {
     private EditorPane pane;
 
     private StatusBar statusBar;
-    private Label statusBarOffsetLabel;
 
     private EditorMenu editorMenu;
 
@@ -167,15 +166,6 @@ public class Editor extends BorderPane {
         statusBar.setPrefHeight(Params.STATUSBAR_PREF_HEIGHT);
         clearStatusBarText();
 
-        statusBarOffsetLabel = new Label();
-        this.setStatusBarOriginCoordinates(0, 0);
-
-        statusBarOffsetLabel.setMinHeight(statusBar.getPrefHeight());
-        statusBarOffsetLabel.setMaxHeight(statusBar.getPrefHeight());
-        statusBarOffsetLabel.setAlignment(Pos.CENTER);
-
-        statusBar.getLeftItems().add(statusBarOffsetLabel);
-        statusBar.getLeftItems().add(new Separator(Orientation.VERTICAL));
 
         editorMenu = new EditorMenu();
 
@@ -191,10 +181,6 @@ public class Editor extends BorderPane {
 
     public void setStatusBarCoordinates(int line, int column){
         statusBar.setText("Current : (" + line + ", " + column + ")");
-    }
-
-    public void setStatusBarOriginCoordinates(int line, int column){
-        statusBarOffsetLabel.setText("Origin: (" + line + ", " + column + ")");
     }
 
     private void translate(double dx, double dy) {
