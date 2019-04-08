@@ -11,7 +11,12 @@ abstract class Selection {
         return new ComplexSelection(this, s);
     }
 
+    private Boolean[][] cells;
+
     Boolean[][] getCells(){
+        if(cells != null)
+            return cells;
+
         int minLine = Integer.MAX_VALUE;
         int minColumn = Integer.MAX_VALUE;
         int maxLine = Integer.MIN_VALUE;
@@ -38,6 +43,7 @@ abstract class Selection {
             }
         }
 
+        this.cells = cells;
         return cells;
     }
 }

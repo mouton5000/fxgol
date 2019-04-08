@@ -9,6 +9,7 @@ import javafx.scene.shape.Line;
 import editor.global.Params;
 import javafx.scene.shape.Rectangle;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 
 class EditorPane extends Pane {
@@ -23,8 +24,11 @@ class EditorPane extends Pane {
 
     private double pressedX;
     private double pressedY;
+
     private LinkedList<Rectangle> selectionRectangles;
+    private HashSet<AliveCircle> selectedCircles;
     private Selection selection;
+    private Selection clipboardSelection;
 
     EditorPane() {
         lines = new LinkedList<>();
@@ -41,11 +45,7 @@ class EditorPane extends Pane {
                 int column = getColumn(event.getX());
                 int line = getLine(event.getY());
 
-                double cx = (column + 0.5) * Params.DEFAULT_CELLS_WIDTH;
-                double cy = (line + 0.5) * Params.DEFAULT_CELLS_WIDTH;
-
-                AliveCircle circle = new AliveCircle(cx, cy, (double) (Params.DEFAULT_CELLS_WIDTH / 2 - 2), line, column);
-                this.getChildren().add(circle);
+                this.addCircle(line, column);
             }
             else{
                 Rectangle selectionRectangle = addNewSelectionRectangle();
@@ -124,7 +124,7 @@ class EditorPane extends Pane {
         });
 
         selectionRectangles = new LinkedList<>();
-
+        selectedCircles = new HashSet<>();
 
     }
 
@@ -136,6 +136,7 @@ class EditorPane extends Pane {
         for(Rectangle selectByDraggingRectangle : selectionRectangles)
             this.getChildren().remove(selectByDraggingRectangle);
         selectionRectangles.clear();
+        selectedCircles.clear();
         selection = null;
     }
 
@@ -166,8 +167,10 @@ class EditorPane extends Pane {
         for(Node child : this.getChildren()) {
             if (child instanceof AliveCircle) {
                 AliveCircle circle = (AliveCircle) child;
-                if(circle.line >= l1 && circle .line < l2 && circle.column >= c1 && circle.column < c2)
+                if(circle.line >= l1 && circle .line < l2 && circle.column >= c1 && circle.column < c2) {
                     cells[circle.line - l1][circle.column - c1] = true;
+                    selectedCircles.add(circle);
+                }
             }
         }
         Selection newselection = new SimpleSelection(l1, c1, cells);
@@ -176,6 +179,33 @@ class EditorPane extends Pane {
             selection = newselection;
         else
             selection = selection.extend(newselection);
+    }
+
+    void cutSelection(){
+        this.copySelection();
+        this.getChildren().removeAll(selectedCircles);
+        this.clearSelectionRectangles();
+    }
+
+    void copySelection(){
+        this.clipboardSelection = selection;
+    }
+
+    void pasteSelection(int line, int column, boolean eraseAliveWithDead){
+        if(this.clipboardSelection == null)
+            return;
+        Boolean[][] cells = clipboardSelection.getCells();
+        for(int l = 0; l < cells.length; l++){
+            for(int c = 0; c < cells[0].length; c++){
+                if(cells[l][c] == null)
+                    continue;
+                AliveCircle circle = getCircle(line + l, column + c);
+                if(circle == null && cells[l][c])
+                    this.addCircle(line + l, column + c);
+                else if(circle != null && !cells[l][c])
+                    this.removeCircle(line + l, column + c);
+            }
+        }
     }
 
     private double getX(int line){
@@ -193,6 +223,35 @@ class EditorPane extends Pane {
     private int getLine(double y){
         return (int)Math.floor(y / Params.DEFAULT_CELLS_WIDTH);
     }
+
+    AliveCircle addCircle(int line, int column){
+        double cx = (column + 0.5) * Params.DEFAULT_CELLS_WIDTH;
+        double cy = (line + 0.5) * Params.DEFAULT_CELLS_WIDTH;
+
+        AliveCircle circle = new AliveCircle(cx, cy, (double) (Params.DEFAULT_CELLS_WIDTH / 2 - 2), line, column);
+        this.getChildren().add(circle);
+        return circle;
+    }
+
+    AliveCircle getCircle(int line, int column){
+        for(Node child : this.getChildren()) {
+            if (child instanceof AliveCircle) {
+                AliveCircle circle = (AliveCircle) child;
+                if(circle.line == line && circle.column == column)
+                    return circle;
+            }
+        }
+        return null;
+    }
+
+    AliveCircle removeCircle(int line, int column){
+        AliveCircle circle = getCircle(line, column);
+        if(circle == null)
+            return null;
+        this.getChildren().remove(circle);
+        return circle;
+    }
+
 
     boolean[][] getCells(boolean infiniteSize, boolean allCells,
                          int offsetLine, int offsetColumn,
