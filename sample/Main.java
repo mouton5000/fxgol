@@ -20,6 +20,7 @@ public class Main extends Application {
         stage.setTitle("FXGol Editor");
         // Display the Stage
         stage.show();
+        editor.requestFocus();
 
     }
     public static void main(String[] args) {

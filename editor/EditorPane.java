@@ -1,10 +1,11 @@
 package editor;
 
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import editor.global.Params;
 import javafx.scene.shape.Rectangle;
@@ -29,6 +30,7 @@ class EditorPane extends Pane {
     private HashSet<AliveCircle> selectedCircles;
     private Selection selection;
     private Selection clipboardSelection;
+    private Group displayedClipboardSelection;
 
     EditorPane() {
         lines = new LinkedList<>();
@@ -37,19 +39,19 @@ class EditorPane extends Pane {
         this.setOnMouseClicked(event -> {
             if(!event.isStillSincePress())
                 return;
+            if(event.getButton() != MouseButton.PRIMARY)
+                return;
 
             if(!event.isControlDown()) {
 
                 this.clearSelectionRectangles();
-
                 int column = getColumn(event.getX());
                 int line = getLine(event.getY());
-
                 this.addCircle(line, column);
+
             }
             else{
-                Rectangle selectionRectangle = addNewSelectionRectangle();
-
+                addNewSelectionRectangle();
                 int c1 = getColumn(event.getX());
                 int l1 = getLine(event.getY());
                 resizeCurrentSelectionRectangle(l1, c1, l1 + 1, c1 + 1);
@@ -68,12 +70,10 @@ class EditorPane extends Pane {
         });
 
         this.setOnMouseDragged(event -> {
-
             if(event.isStillSincePress())
                 return;
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
-
             Rectangle selectionRectangle = this.getCurrentSelectionRectangle();
 
             selectionRectangle.setX(Math.min(event.getX(), pressedX));
@@ -144,7 +144,7 @@ class EditorPane extends Pane {
         Rectangle selectionRectangle = new Rectangle();
         selectionRectangle.setWidth(0);
         selectionRectangle.setHeight(0);
-        selectionRectangle.setFill(new Color(0.3, 0.3, 0.3, 0.6));
+        selectionRectangle.setFill(Params.SELECTION_COLOR);
         selectionRectangles.add(selectionRectangle);
         this.getChildren().add(selectionRectangle);
         return selectionRectangle;
@@ -191,7 +191,35 @@ class EditorPane extends Pane {
         this.clipboardSelection = selection;
     }
 
-    void pasteSelection(int line, int column, boolean eraseAliveWithDead){
+    void displayClipboardSelection(){
+        if(this.clipboardSelection == null)
+            return;
+
+        this.clearSelectionRectangles();
+
+        Group newDisplayedCliboardSelection = clipboardSelection.getNode();
+        if(this.displayedClipboardSelection != null)
+            this.getChildren().remove(displayedClipboardSelection);
+        displayedClipboardSelection = newDisplayedCliboardSelection;
+
+        displayedClipboardSelection.setLayoutX(getX(getFirstVisibleColumn()));
+        displayedClipboardSelection.setLayoutY(getY(getFirstVisibleLine()));
+
+        displayedClipboardSelection.setOnMouseClicked(Event::consume);
+        displayedClipboardSelection.setOnMousePressed(Event::consume);
+        displayedClipboardSelection.setOnMouseReleased(Event::consume);
+        displayedClipboardSelection.setOnMouseDragged(event -> {
+            displayedClipboardSelection.setLayoutX(
+                    this.getX(this.getColumn(displayedClipboardSelection.getLayoutX() + event.getX())));
+            displayedClipboardSelection.setLayoutY(
+                    this.getY(this.getLine(displayedClipboardSelection.getLayoutY() + event.getY())));
+            event.consume();
+        });
+
+        this.getChildren().add(displayedClipboardSelection);
+    }
+
+    void pasteDisplayedSelection(int line, int column, boolean eraseAliveWithDead){
         if(this.clipboardSelection == null)
             return;
         Boolean[][] cells = clipboardSelection.getCells();
@@ -216,6 +244,10 @@ class EditorPane extends Pane {
         return (int)Math.floor(x / Params.DEFAULT_CELLS_WIDTH);
     }
 
+    private int getFirstVisibleColumn(){
+        return getColumn(-this.getTranslateX()) + 1;
+    }
+
     private double getY(int column){
         return column * Params.DEFAULT_CELLS_WIDTH;
     }
@@ -224,11 +256,15 @@ class EditorPane extends Pane {
         return (int)Math.floor(y / Params.DEFAULT_CELLS_WIDTH);
     }
 
+    private int getFirstVisibleLine(){
+        return getColumn(-this.getTranslateY()) + 1;
+    }
+
     AliveCircle addCircle(int line, int column){
         double cx = (column + 0.5) * Params.DEFAULT_CELLS_WIDTH;
         double cy = (line + 0.5) * Params.DEFAULT_CELLS_WIDTH;
 
-        AliveCircle circle = new AliveCircle(cx, cy, (double) (Params.DEFAULT_CELLS_WIDTH / 2 - 2), line, column);
+        AliveCircle circle = new AliveCircle(cx, cy, Params.DEFAULT_CIRCLE_RADIUS, line, column);
         this.getChildren().add(circle);
         return circle;
     }

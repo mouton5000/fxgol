@@ -114,6 +114,19 @@ public class Editor extends BorderPane {
         runMenu.getItems().addAll(runItem, settingsItem);
 
         Menu selectionMenu = new Menu("Selection");
+
+        MenuItem cutItem = new MenuItem("Cut");
+        cutItem.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
+        cutItem.setOnAction(event -> this.pane.cutSelection());
+
+        MenuItem copyItem = new MenuItem("Copy");
+        copyItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
+        copyItem.setOnAction(event -> this.pane.copySelection());
+
+        MenuItem pasteItem = new MenuItem("Paste");
+        pasteItem.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+        pasteItem.setOnAction(event -> this.pane.displayClipboardSelection());
+
         MenuItem xMirrorItem = new MenuItem("Mirror (horizontally)");
         xMirrorItem.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         MenuItem yMirrorItem = new MenuItem("Mirror (vertically)");
@@ -123,7 +136,7 @@ public class Editor extends BorderPane {
         MenuItem oneStepItem = new MenuItem("Step one generation");
         oneStepItem.setAccelerator(new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN));
 
-        selectionMenu.getItems().addAll(xMirrorItem, yMirrorItem, rotateItem, oneStepItem);
+        selectionMenu.getItems().addAll(cutItem, copyItem, pasteItem, new SeparatorMenuItem(), xMirrorItem, yMirrorItem, rotateItem, oneStepItem);
         bar.getMenus().addAll(runMenu, selectionMenu);
 
         this.setOnMouseDragged(event -> {

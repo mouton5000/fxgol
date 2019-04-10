@@ -1,11 +1,13 @@
 package editor;
 
 import javafx.scene.Group;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
 public class AliveCircle extends Group {
+
     int line;
     int column;
 
@@ -18,6 +20,9 @@ public class AliveCircle extends Group {
         this.getChildren().add(circle);
 
         this.setOnMouseClicked(mouseEvent -> {
+            if(mouseEvent.getButton() != MouseButton.PRIMARY)
+                return;
+
             if(!mouseEvent.isControlDown()){
                 ((EditorPane)this.getParent()).getChildren().remove(this);
                 mouseEvent.consume();
