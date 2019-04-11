@@ -87,22 +87,8 @@ class EditorPane extends Pane {
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
 
-            if(displayedClipboardSelection != null) {
-                int l1 = getLine(displayedClipboardSelection.getLayoutY());
-                int c1 = getColumn(displayedClipboardSelection.getLayoutX());
-                Boolean[][] cells = clipboardSelection.getCells();
-                for(int line = l1; line < l1 + cells.length; line ++){
-                    for(int column = c1; column < c1 + cells[0].length; column++){
-                        if(cells[line - l1][column - c1] != null){
-                            if(cells[line - l1][column - c1]
-                                    && this.getCircle(line, column) == null)
-                                this.addCircle(line, column);
-                        }
-                    }
-                }
-                this.getChildren().remove(displayedClipboardSelection);
-                displayedClipboardSelection = null;
-            }
+            if(displayedClipboardSelection != null)
+                pasteDisplayedSelection(false);
 
             pressedX = event.getX();
             pressedY = event.getY();
@@ -234,21 +220,28 @@ class EditorPane extends Pane {
         this.getChildren().add(displayedClipboardSelection);
     }
 
-    void pasteDisplayedSelection(int line, int column, boolean eraseAliveWithDead){
+    void pasteDisplayedSelection(boolean eraseAliveWithDead){
         if(this.clipboardSelection == null)
             return;
+
+        int l1 = getLine(displayedClipboardSelection.getLayoutY());
+        int c1 = getColumn(displayedClipboardSelection.getLayoutX());
         Boolean[][] cells = clipboardSelection.getCells();
-        for(int l = 0; l < cells.length; l++){
-            for(int c = 0; c < cells[0].length; c++){
-                if(cells[l][c] == null)
+        for(int line = l1; line < l1 + cells.length; line ++){
+            for(int column = c1; column < c1 + cells[0].length; column++){
+                if(cells[line - l1][column - c1] == null)
                     continue;
-                AliveCircle circle = getCircle(line + l, column + c);
-                if(circle == null && cells[l][c])
-                    this.addCircle(line + l, column + c);
-                else if(circle != null && !cells[l][c])
-                    this.removeCircle(line + l, column + c);
+
+                AliveCircle circle = getCircle(line, column);
+                boolean alive = cells[line - l1][column - c1];
+                if(circle == null && alive)
+                    this.addCircle(line, column);
+                else if(eraseAliveWithDead && circle != null && !alive)
+                    this.removeCircle(line, column);
             }
         }
+        this.getChildren().remove(displayedClipboardSelection);
+        displayedClipboardSelection = null;
     }
 
     private double getX(int line){
