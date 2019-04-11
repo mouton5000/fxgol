@@ -43,12 +43,10 @@ class EditorPane extends Pane {
                 return;
 
             if(!event.isControlDown()) {
-
                 this.clearSelectionRectangles();
                 int column = getColumn(event.getX());
                 int line = getLine(event.getY());
                 this.addCircle(line, column);
-
             }
             else{
                 addNewSelectionRectangle();
@@ -88,6 +86,23 @@ class EditorPane extends Pane {
 
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
+
+            if(displayedClipboardSelection != null) {
+                int l1 = getLine(displayedClipboardSelection.getLayoutY());
+                int c1 = getColumn(displayedClipboardSelection.getLayoutX());
+                Boolean[][] cells = clipboardSelection.getCells();
+                for(int line = l1; line < l1 + cells.length; line ++){
+                    for(int column = c1; column < c1 + cells[0].length; column++){
+                        if(cells[line - l1][column - c1] != null){
+                            if(cells[line - l1][column - c1]
+                                    && this.getCircle(line, column) == null)
+                                this.addCircle(line, column);
+                        }
+                    }
+                }
+                this.getChildren().remove(displayedClipboardSelection);
+                displayedClipboardSelection = null;
+            }
 
             pressedX = event.getX();
             pressedY = event.getY();
