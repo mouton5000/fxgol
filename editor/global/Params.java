@@ -1,7 +1,6 @@
 package editor.global;
 
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 public class Params {
     public static final int DEFAULT_CELLS_WIDTH = 50;

@@ -1,5 +1,6 @@
 package editor;
 
+import editor.global.Params;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.Group;
@@ -7,7 +8,6 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
-import editor.global.Params;
 import javafx.scene.shape.Rectangle;
 
 import java.util.HashSet;
@@ -15,8 +15,8 @@ import java.util.LinkedList;
 
 class EditorPane extends Pane {
 
-    LinkedList<Line> lines;
-    LinkedList<Line> columns;
+    private LinkedList<Line> lines;
+    private LinkedList<Line> columns;
 
     private double offsetX;
     private double offsetY;

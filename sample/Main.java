@@ -4,7 +4,6 @@ import editor.Editor;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import viewer.view.Viewer;
 
 public class Main extends Application {
 

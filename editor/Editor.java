@@ -1,8 +1,6 @@
 package editor;
 
 import editor.global.Params;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -10,7 +8,6 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 import viewer.view.Viewer;
