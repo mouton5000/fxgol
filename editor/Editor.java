@@ -124,6 +124,10 @@ public class Editor extends BorderPane {
         pasteItem.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         pasteItem.setOnAction(event -> this.pane.displayClipboardSelection());
 
+        MenuItem deleteItem = new MenuItem("Delete");
+        deleteItem.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
+        deleteItem.setOnAction(event -> this.pane.removeSelection());
+
         MenuItem xMirrorItem = new MenuItem("Mirror (horizontally)");
         xMirrorItem.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         MenuItem yMirrorItem = new MenuItem("Mirror (vertically)");
@@ -133,7 +137,7 @@ public class Editor extends BorderPane {
         MenuItem oneStepItem = new MenuItem("Step one generation");
         oneStepItem.setAccelerator(new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN));
 
-        selectionMenu.getItems().addAll(cutItem, copyItem, pasteItem, new SeparatorMenuItem(), xMirrorItem, yMirrorItem, rotateItem, oneStepItem);
+        selectionMenu.getItems().addAll(cutItem, copyItem, pasteItem, deleteItem, new SeparatorMenuItem(), xMirrorItem, yMirrorItem, rotateItem, oneStepItem);
         bar.getMenus().addAll(runMenu, selectionMenu);
 
         this.setOnMouseDragged(event -> {

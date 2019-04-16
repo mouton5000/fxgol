@@ -170,6 +170,12 @@ class EditorPane extends Pane {
         selection.clear();
     }
 
+    void removeSelection(){
+        if(selection.isEmpty())
+            return;
+        selection.clear();
+    }
+
     private void select(int line1, int column1, int line2, int column2){
         selection.addRectangle(line1, column1, line2 - line1, column2 - column1);
         LinkedList<AliveCircle> toRemove = new LinkedList<>();
