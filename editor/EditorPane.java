@@ -2,15 +2,12 @@ package editor;
 
 import editor.global.Params;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 
 class EditorPane extends Pane {
@@ -26,11 +23,9 @@ class EditorPane extends Pane {
     private double pressedX;
     private double pressedY;
 
-    private LinkedList<Rectangle> selectionRectangles;
-    private HashSet<AliveCircle> selectedCircles;
+    private Rectangle selectionRectangle;
     private Selection selection;
     private Selection clipboardSelection;
-    private Group displayedClipboardSelection;
 
     EditorPane() {
         lines = new LinkedList<>();
@@ -43,16 +38,18 @@ class EditorPane extends Pane {
                 return;
 
             if(!event.isControlDown()) {
-                this.clearSelectionRectangles();
-                int column = getColumn(event.getX());
-                int line = getLine(event.getY());
-                this.addCircle(line, column);
+                if(selection.isEmpty()) {
+                    int column = Params.getColumn(event.getX());
+                    int line = Params.getLine(event.getY());
+                    this.addCircle(line, column);
+                }
+                else
+                    pasteSelection();
             }
             else{
-                addNewSelectionRectangle();
-                int c1 = getColumn(event.getX());
-                int l1 = getLine(event.getY());
-                resizeCurrentSelectionRectangle(l1, c1, l1 + 1, c1 + 1);
+                int c1 = Params.getColumn(event.getX());
+                int l1 = Params.getLine(event.getY());
+                select(l1, c1, l1 + 1, c1 + 1);
             }
         });
 
@@ -72,7 +69,6 @@ class EditorPane extends Pane {
                 return;
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
-            Rectangle selectionRectangle = this.getCurrentSelectionRectangle();
 
             selectionRectangle.setX(Math.min(event.getX(), pressedX));
             selectionRectangle.setY(Math.min(event.getY(), pressedY));
@@ -83,20 +79,17 @@ class EditorPane extends Pane {
         });
 
         this.setOnMousePressed(event -> {
-
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
-
-            if(displayedClipboardSelection != null)
-                pasteDisplayedSelection(false);
 
             pressedX = event.getX();
             pressedY = event.getY();
 
-            if(!event.isControlDown())
-                clearSelectionRectangles();
-
-            this.addNewSelectionRectangle();
+            selectionRectangle.setVisible(true);
+            selectionRectangle.setX(pressedX);
+            selectionRectangle.setY(pressedY);
+            selectionRectangle.setWidth(0);
+            selectionRectangle.setHeight(0);
             event.consume();
         });
 
@@ -107,13 +100,16 @@ class EditorPane extends Pane {
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
 
-            Rectangle selectionRectangle = this.getCurrentSelectionRectangle();
+            if(!event.isControlDown())
+                pasteSelection();
 
-            int c1 = getColumn(selectionRectangle.getX());
-            int l1 = getLine(selectionRectangle.getY());
-            int c2 = getColumn(selectionRectangle.getX() + selectionRectangle.getWidth()) + 1;
-            int l2 = getLine(selectionRectangle.getY() + selectionRectangle.getHeight()) + 1;
-            this.resizeCurrentSelectionRectangle(l1, c1, l2, c2);
+
+            int c1 = Params.getColumn(selectionRectangle.getX());
+            int l1 = Params.getLine(selectionRectangle.getY());
+            int c2 = Params.getColumn(selectionRectangle.getX() + selectionRectangle.getWidth()) + 1;
+            int l2 = Params.getLine(selectionRectangle.getY() + selectionRectangle.getHeight()) + 1;
+            select(l1, c1, l2, c2);
+            selectionRectangle.setVisible(false);
 
             event.consume();
         });
@@ -124,148 +120,77 @@ class EditorPane extends Pane {
             updateWidthAndHeight(width, height);
         });
 
-        selectionRectangles = new LinkedList<>();
-        selectedCircles = new HashSet<>();
-
-    }
-
-    private Rectangle getCurrentSelectionRectangle(){
-        return selectionRectangles.getLast();
-    }
-
-    private void clearSelectionRectangles(){
-        for(Rectangle selectByDraggingRectangle : selectionRectangles)
-            this.getChildren().remove(selectByDraggingRectangle);
-        selectionRectangles.clear();
-        selectedCircles.clear();
-        selection = null;
-    }
-
-    private Rectangle addNewSelectionRectangle(){
-        Rectangle selectionRectangle = new Rectangle();
-        selectionRectangle.setWidth(0);
-        selectionRectangle.setHeight(0);
+        selectionRectangle = new Rectangle(0, 0, 0, 0);
         selectionRectangle.setFill(Params.SELECTION_COLOR);
-        selectionRectangles.add(selectionRectangle);
-        this.getChildren().add(selectionRectangle);
-        return selectionRectangle;
-    }
+        selectionRectangle.setVisible(false);
 
-    private void resizeCurrentSelectionRectangle(int l1, int c1, int l2, int c2){
-        Rectangle selectionRectangle = this.getCurrentSelectionRectangle();
+        selection = new Selection();
 
-        double x = getX(c1);
-        double y = getY(l1);
-        double w = getX(c2) - x;
-        double h = getY(l2) - y;
-
-        selectionRectangle.setX(x);
-        selectionRectangle.setY(y);
-        selectionRectangle.setWidth(w);
-        selectionRectangle.setHeight(h);
-
-        boolean[][] cells = new boolean[l2 - l1][c2 - c1];
-        for(Node child : this.getChildren()) {
-            if (child instanceof AliveCircle) {
-                AliveCircle circle = (AliveCircle) child;
-                if(circle.line >= l1 && circle .line < l2 && circle.column >= c1 && circle.column < c2) {
-                    cells[circle.line - l1][circle.column - c1] = true;
-                    selectedCircles.add(circle);
-                }
-            }
-        }
-        Selection newselection = new SimpleSelection(l1, c1, cells);
-
-        if(selection == null)
-            selection = newselection;
-        else
-            selection = selection.extend(newselection);
+        this.getChildren().addAll(selectionRectangle, selection);
     }
 
     void cutSelection(){
-        this.copySelection();
-        this.getChildren().removeAll(selectedCircles);
-        this.clearSelectionRectangles();
+        if(selection.isEmpty())
+            return;
+        copySelection();
+        selection.clear();
     }
 
     void copySelection(){
-        this.clipboardSelection = selection;
+        if(selection.isEmpty())
+            return;
+        if(clipboardSelection != null)
+            this.getChildren().remove(clipboardSelection);
+        clipboardSelection = selection.copy();
+        clipboardSelection.setVisible(false);
+        this.getChildren().add(clipboardSelection);
     }
 
     void displayClipboardSelection(){
-        if(this.clipboardSelection == null)
-            return;
-
-        this.clearSelectionRectangles();
-
-        Group newDisplayedCliboardSelection = clipboardSelection.getNode();
-        if(this.displayedClipboardSelection != null)
-            this.getChildren().remove(displayedClipboardSelection);
-        displayedClipboardSelection = newDisplayedCliboardSelection;
-
-        displayedClipboardSelection.setLayoutX(getX(getFirstVisibleColumn()));
-        displayedClipboardSelection.setLayoutY(getY(getFirstVisibleLine()));
-
-        displayedClipboardSelection.setOnMouseClicked(Event::consume);
-        displayedClipboardSelection.setOnMousePressed(Event::consume);
-        displayedClipboardSelection.setOnMouseReleased(Event::consume);
-        displayedClipboardSelection.setOnMouseDragged(event -> {
-            displayedClipboardSelection.setLayoutX(
-                    this.getX(this.getColumn(displayedClipboardSelection.getLayoutX() + event.getX())));
-            displayedClipboardSelection.setLayoutY(
-                    this.getY(this.getLine(displayedClipboardSelection.getLayoutY() + event.getY())));
-            event.consume();
-        });
-
-        this.getChildren().add(displayedClipboardSelection);
+        selection.clear();
+        clipboardSelection.setOffset(this.getFirstVisibleColumn(), this.getFirstVisibleLine());
+        clipboardSelection.setVisible(true);
+        selection = clipboardSelection;
+        clipboardSelection = null;
+        copySelection();
     }
 
-    void pasteDisplayedSelection(boolean eraseAliveWithDead){
-        if(this.clipboardSelection == null)
+    void pasteSelection(){
+        if(selection.isEmpty())
             return;
-
-        int l1 = getLine(displayedClipboardSelection.getLayoutY());
-        int c1 = getColumn(displayedClipboardSelection.getLayoutX());
-        Boolean[][] cells = clipboardSelection.getCells();
-        for(int line = l1; line < l1 + cells.length; line ++){
-            for(int column = c1; column < c1 + cells[0].length; column++){
-                if(cells[line - l1][column - c1] == null)
+        for(int line = 0; line < selection.cells.length; line++){
+            for(int column = 0; column < selection.cells[0].length; column++){
+                Boolean alive = selection.cells[line][column];
+                if(alive == null || !alive)
                     continue;
-
-                AliveCircle circle = getCircle(line, column);
-                boolean alive = cells[line - l1][column - c1];
-                if(circle == null && alive)
-                    this.addCircle(line, column);
-                else if(eraseAliveWithDead && circle != null && !alive)
-                    this.removeCircle(line, column);
+                if(this.getCircle(line + selection.offsetLine, column + selection.offsetColumn) == null)
+                    this.addCircle(line + selection.offsetLine, column + selection.offsetColumn);
             }
         }
-        this.getChildren().remove(displayedClipboardSelection);
-        displayedClipboardSelection = null;
+        selection.clear();
     }
 
-    private double getX(int line){
-        return line * Params.DEFAULT_CELLS_WIDTH;
-    }
-
-    private int getColumn(double x){
-        return (int)Math.floor(x / Params.DEFAULT_CELLS_WIDTH);
+    private void select(int line1, int column1, int line2, int column2){
+        selection.addRectangle(line1, column1, line2 - line1, column2 - column1);
+        LinkedList<AliveCircle> toRemove = new LinkedList<>();
+        for(Node child : this.getChildren()) {
+            if (child instanceof AliveCircle) {
+                AliveCircle circle = (AliveCircle) child;
+                if(circle.line >= line1 && circle .line < line2 && circle.column >= column1 && circle.column < column2) {
+                    selection.addCircle(circle.line, circle.column);
+                    toRemove.add(circle);
+                }
+            }
+        }
+        this.getChildren().removeAll(toRemove);
     }
 
     private int getFirstVisibleColumn(){
-        return getColumn(-this.getTranslateX()) + 1;
-    }
-
-    private double getY(int column){
-        return column * Params.DEFAULT_CELLS_WIDTH;
-    }
-
-    private int getLine(double y){
-        return (int)Math.floor(y / Params.DEFAULT_CELLS_WIDTH);
+        return Params.getColumn(-this.getTranslateX()) + 1;
     }
 
     private int getFirstVisibleLine(){
-        return getColumn(-this.getTranslateY()) + 1;
+        return Params.getColumn(-this.getTranslateY()) + 1;
     }
 
     AliveCircle addCircle(int line, int column){

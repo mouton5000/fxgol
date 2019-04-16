@@ -12,4 +12,20 @@ public class Params {
     public static final int STATUSBAR_PREF_HEIGHT = 30;
     public static final int EDITOR_LEFT_MENU_PREF_WIDTH = 200;
     public static final Color SELECTION_COLOR = new Color(0.3, 0.3, 0.3, 0.6);
+
+    public static double getX(int column){
+        return column * Params.DEFAULT_CELLS_WIDTH;
+    }
+
+    public static int getColumn(double x){
+        return (int)Math.floor(x / Params.DEFAULT_CELLS_WIDTH);
+    }
+
+    public static double getY(int line){
+        return line * Params.DEFAULT_CELLS_WIDTH;
+    }
+
+    public static int getLine(double y){
+        return (int)Math.floor(y / Params.DEFAULT_CELLS_WIDTH);
+    }
 }
