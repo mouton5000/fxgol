@@ -24,7 +24,7 @@ class EditorPane extends Pane {
     private double pressedY;
 
     private Rectangle selectionRectangle;
-    private Selection selection;
+    Selection selection;
     private Selection clipboardSelection;
 
     EditorPane() {
@@ -174,6 +174,12 @@ class EditorPane extends Pane {
         if(selection.isEmpty())
             return;
         selection.clear();
+    }
+
+    void xMirrorSelection(){
+        if(selection.isEmpty())
+            return;
+        selection.xMirror();
     }
 
     private void select(int line1, int column1, int line2, int column2){

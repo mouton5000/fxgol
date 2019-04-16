@@ -106,6 +106,40 @@ class Selection extends Group {
         cells[line - offsetLine][column - offsetColumn] = true;
     }
 
+    void xMirror(){
+        double minX = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+
+        for(Node child : this.getChildren()){
+            if(child instanceof Rectangle){
+                Rectangle rect = (Rectangle)child;
+                minX = Math.min(minX, rect.getX());
+                maxX = Math.max(maxX, rect.getX() + rect.getWidth());
+            }
+        }
+
+        for(Node child : this.getChildren()){
+            if(child instanceof Rectangle){
+                Rectangle rect = (Rectangle)child;
+                rect.setX(maxX - (rect.getX() - minX) - rect.getWidth());
+            }
+            else if(child instanceof Circle){
+                Circle circle = (Circle) child;
+                circle.setCenterX(maxX - (circle.getCenterX() - minX));
+            }
+        }
+
+        int nbcolumns = cells[0].length;
+        for(int line = 0; line < cells.length; line++){
+            for(int column = 0; column < nbcolumns / 2; column++){
+                Boolean temp = cells[line][column];
+                cells[line][column] = cells[line][nbcolumns - 1 - column];
+                cells[line][nbcolumns - 1 - column] = temp;
+            }
+        }
+
+    }
+
     void clear(){
         this.getChildren().clear();
         this.cells = null;
