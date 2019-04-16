@@ -73,16 +73,18 @@ class Selection extends Group {
                 || column + nbColumns > offsetColumn + cells[0].length){
             int newOffsetLine = Math.min(offsetLine, line);
             int newOffsetColumn = Math.min(offsetColumn, column);
-            int newNbLines = Math.max(((cells == null)?0:offsetLine + cells.length), line + nbLines) - newOffsetLine;
-            int newNbColumns = Math.max(((cells == null)?0:offsetColumn + cells.length), column + nbColumns) - newOffsetColumn;
+            int newNbLines =
+                    Math.max(((cells == null)?Integer.MIN_VALUE:offsetLine + cells.length), line + nbLines) - newOffsetLine;
+            int newNbColumns =
+                    Math.max(((cells == null)?Integer.MIN_VALUE:offsetColumn + cells[0].length), column + nbColumns) - newOffsetColumn;
             Boolean[][] newCells = new Boolean[newNbLines][newNbColumns];
-
-            if(cells != null)
-                for(int l = 0; l < cells.length; l++) {
+            if(cells != null) {
+                for (int l = 0; l < cells.length; l++) {
                     System.arraycopy(cells[l], 0,
                             newCells[offsetLine - newOffsetLine + l], offsetColumn - newOffsetColumn,
                             cells[0].length);
                 }
+            }
 
             for(int l = line; l < line + nbLines; l++){
                 for(int c = column; c < column + nbColumns; c++){
@@ -94,7 +96,6 @@ class Selection extends Group {
             offsetLine = newOffsetLine;
             offsetColumn = newOffsetColumn;
             cells = newCells;
-
         }
     }
 
