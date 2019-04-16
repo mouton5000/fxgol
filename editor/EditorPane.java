@@ -182,6 +182,12 @@ class EditorPane extends Pane {
         selection.xMirror();
     }
 
+    void yMirrorSelection(){
+        if(selection.isEmpty())
+            return;
+        selection.yMirror();
+    }
+
     private void select(int line1, int column1, int line2, int column2){
         selection.addRectangle(line1, column1, line2 - line1, column2 - column1);
         LinkedList<AliveCircle> toRemove = new LinkedList<>();

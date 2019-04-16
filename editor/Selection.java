@@ -141,6 +141,38 @@ class Selection extends Group {
 
     }
 
+    void yMirror(){
+        double minY = Double.POSITIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+
+        for(Node child : this.getChildren()){
+            if(child instanceof Rectangle){
+                Rectangle rect = (Rectangle)child;
+                minY = Math.min(minY, rect.getY());
+                maxY = Math.max(maxY, rect.getY() + rect.getHeight());
+            }
+        }
+
+        for(Node child : this.getChildren()){
+            if(child instanceof Rectangle){
+                Rectangle rect = (Rectangle)child;
+                rect.setY(maxY - (rect.getY() - minY) - rect.getHeight());
+            }
+            else if(child instanceof Circle){
+                Circle circle = (Circle) child;
+                circle.setCenterY(maxY - (circle.getCenterY() - minY));
+            }
+        }
+
+        int nbLines = cells.length;
+        for(int line = 0; line < nbLines / 2; line++){
+            Boolean[] temp = cells[line];
+            cells[line] = cells[nbLines - 1 - line];
+            cells[nbLines - 1 - line] = temp;
+        }
+
+    }
+
     void clear(){
         this.getChildren().clear();
         this.cells = null;
