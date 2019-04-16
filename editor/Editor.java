@@ -136,6 +136,7 @@ public class Editor extends BorderPane {
         yMirrorItem.setOnAction(event -> this.pane.yMirrorSelection());
         MenuItem rotateItem = new MenuItem("Rotate (90 Clockwize)");
         rotateItem.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+        rotateItem.setOnAction(event -> this.pane.rotateSelection());
         MenuItem oneStepItem = new MenuItem("Step one generation");
         oneStepItem.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
 

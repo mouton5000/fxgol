@@ -173,6 +173,54 @@ class Selection extends Group {
 
     }
 
+    void rotate(){
+        double minX = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double minY = Double.POSITIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+
+        for(Node child : this.getChildren()){
+            if(child instanceof Rectangle){
+                Rectangle rect = (Rectangle)child;
+                minX = Math.min(minX, rect.getX());
+                maxX = Math.max(maxX, rect.getX() + rect.getWidth());
+                minY = Math.min(minY, rect.getY());
+                maxY = Math.max(maxY, rect.getY() + rect.getHeight());
+            }
+        }
+
+        for(Node child : this.getChildren()){
+            if(child instanceof Rectangle){
+                Rectangle rect = (Rectangle)child;
+
+                double x = rect.getX();
+                double y = rect.getY();
+                double w = rect.getWidth();
+                double h = rect.getHeight();
+
+                rect.setX(minX + maxY - y - h);
+                rect.setY(x);
+                rect.setWidth(h);
+                rect.setHeight(w);
+            }
+            else if(child instanceof Circle){
+                Circle circle = (Circle) child;
+                double x = circle.getCenterX();
+                double y = circle.getCenterY();
+                circle.setCenterX(minX + maxY - y);
+                circle.setCenterY(x);
+            }
+        }
+
+        int newNbLines = cells[0].length;
+        int newNbColumns = cells.length;
+        Boolean[][] newCells = new Boolean[newNbLines][newNbColumns];
+        for(int line = 0; line < newNbLines; line++)
+            for(int column = 0; column < newNbColumns; column++)
+                newCells[line][column] = cells[cells.length - 1 - column][line];
+        cells = newCells;
+    }
+
     void clear(){
         this.getChildren().clear();
         this.cells = null;
