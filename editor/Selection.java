@@ -68,9 +68,6 @@ class Selection extends Group {
                 nbLines * Params.DEFAULT_CELLS_WIDTH);
         rectangle.setFill(Params.SELECTION_COLOR);
         this.getChildren().add(rectangle);
-        if(cells == null || line < offsetLine || column < offsetColumn
-                || line + nbLines > offsetLine + cells.length
-                || column + nbColumns > offsetColumn + cells[0].length){
             int newOffsetLine = Math.min(offsetLine, line);
             int newOffsetColumn = Math.min(offsetColumn, column);
             int newNbLines =
@@ -96,7 +93,6 @@ class Selection extends Group {
             offsetLine = newOffsetLine;
             offsetColumn = newOffsetColumn;
             cells = newCells;
-        }
     }
 
     void addCircle(int line, int column){
@@ -104,7 +100,7 @@ class Selection extends Group {
                 new Circle(Params.getX(column) - this.getLayoutX() + 0.5 * Params.DEFAULT_CELLS_WIDTH,
                         Params.getY(line) - this.getLayoutY() + 0.5 * Params.DEFAULT_CELLS_WIDTH,
                         Params.DEFAULT_CIRCLE_RADIUS));
-        cells[line - offsetLine][column - offsetColumn] = true;
+            cells[line - offsetLine][column - offsetColumn] = true;
     }
 
     void xMirror(){
