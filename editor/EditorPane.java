@@ -196,17 +196,16 @@ class EditorPane extends Pane {
 
     private void select(int line1, int column1, int line2, int column2){
         selection.addRectangle(line1, column1, line2 - line1, column2 - column1);
-        LinkedList<AliveCircle> toRemove = new LinkedList<>();
-        for(Node child : this.getChildren()) {
+        this.getChildren().removeIf(child -> {
             if (child instanceof AliveCircle) {
                 AliveCircle circle = (AliveCircle) child;
                 if(circle.line >= line1 && circle .line < line2 && circle.column >= column1 && circle.column < column2) {
                     selection.addCircle(circle.line, circle.column);
-                    toRemove.add(circle);
+                    return true;
                 }
             }
-        }
-        this.getChildren().removeAll(toRemove);
+            return false;
+        });
     }
 
     private int getFirstVisibleColumn(){
