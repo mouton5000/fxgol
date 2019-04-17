@@ -148,7 +148,7 @@ class EditorPane extends Pane {
 
     void displayClipboardSelection(){
         selection.clear();
-        clipboardSelection.setOffset(this.getFirstVisibleColumn(), this.getFirstVisibleLine());
+        clipboardSelection.setOffset(this.getFirstVisibleLine(), this.getFirstVisibleColumn());
         clipboardSelection.setVisible(true);
         selection = clipboardSelection;
         clipboardSelection = null;
