@@ -195,7 +195,7 @@ class Selection extends Group {
                 double h = rect.getHeight();
 
                 rect.setX(minX + maxY - y - h);
-                rect.setY(x);
+                rect.setY(minY + x - minX);
                 rect.setWidth(h);
                 rect.setHeight(w);
             }
@@ -204,7 +204,7 @@ class Selection extends Group {
                 double x = circle.getCenterX();
                 double y = circle.getCenterY();
                 circle.setCenterX(minX + maxY - y);
-                circle.setCenterY(x);
+                circle.setCenterY(minY + x - minX);
             }
         }
 
