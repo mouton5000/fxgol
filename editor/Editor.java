@@ -139,6 +139,7 @@ public class Editor extends BorderPane {
         rotateItem.setOnAction(event -> this.pane.rotateSelection());
         MenuItem oneStepItem = new MenuItem("Step one generation");
         oneStepItem.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
+        oneStepItem.setOnAction(event -> this.pane.stepSelection());
 
         selectionMenu.getItems().addAll(cutItem, copyItem, pasteItem, deleteItem, new SeparatorMenuItem(), xMirrorItem, yMirrorItem, rotateItem, oneStepItem);
         bar.getMenus().addAll(runMenu, selectionMenu);

@@ -217,6 +217,69 @@ class Selection extends Group {
         cells = newCells;
     }
 
+    void step(){
+        int nbLines = cells.length;
+        int nbColumns = cells[0].length;
+        Boolean[][] newCells = new Boolean[nbLines + 2][nbColumns + 2];
+
+        for(int line = -1; line <= nbLines; line++){
+            for(int column = -1; column <= nbColumns; column++){
+                int nbNeighbors = 0;
+                for(int deltaL = -1; deltaL <= 1; deltaL++){
+                    int dLine = deltaL + line;
+                    if(dLine < 0 || dLine >= nbLines)
+                        continue;
+                    for(int deltaC = -1; deltaC <= 1; deltaC++){
+                        if(deltaC == 0 && deltaL == 0)
+                            continue;
+                        int dColumn = deltaC + column;
+                        if(dColumn < 0 || dColumn >= nbColumns)
+                            continue;
+                        Boolean alive = cells[dLine][dColumn];
+                        nbNeighbors += (alive != null && alive)?1:0;
+                    }
+                }
+
+                Boolean alive = null;
+                if(line >= 0 && line < nbLines && column >= 0 && column < nbColumns && cells[line][column] != null)
+                    alive = cells[line][column];
+
+                if(alive != null && alive){
+                    newCells[line + 1][column + 1] = nbNeighbors == 2 || nbNeighbors == 3;
+                }
+                else{
+                    if(nbNeighbors == 3)
+                        newCells[line + 1][column + 1] = true;
+                    else
+                        newCells[line + 1][column + 1] = alive;
+                }
+            }
+        }
+
+        this.getChildren().removeIf(child -> child instanceof Circle);
+
+        int currentOffsetLine = offsetLine;
+        int currentOffsetColumn = offsetColumn;
+        for(int line = -1; line <= nbLines; line++) {
+            for (int column = -1; column <= nbColumns; column++) {
+                Boolean alive = newCells[line + 1][column + 1];
+                int dLine = line + currentOffsetLine - offsetLine;
+                int dColumn = column + currentOffsetColumn - offsetColumn;
+                if(alive != null && alive) {
+                    if(dLine < 0 || dLine >= cells.length || dColumn < 0 || dColumn >= cells[0].length
+                            || cells[dLine][dColumn] == null) {
+                        this.addRectangle(currentOffsetLine + line, currentOffsetColumn + column,
+                                1, 1);
+                    }
+                    this.addCircle(currentOffsetLine + line, currentOffsetColumn + column);
+                }
+                else if(dLine >= 0 && dLine < cells.length && dColumn >= 0 && dColumn < cells[0].length) {
+                    cells[dLine][dColumn] = alive;
+                }
+            }
+        }
+    }
+
     void clear(){
         this.getChildren().clear();
         this.cells = null;
