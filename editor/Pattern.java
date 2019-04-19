@@ -4,6 +4,7 @@ import com.sun.javafx.font.FontFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 
 import java.util.regex.Matcher;
 
@@ -79,7 +80,7 @@ class PatternCell extends ListCell<Pattern>{
         if(item != null && item.name != null)
             this.setText(item.name);
         if(!empty) {
-            Button pasteButton = new Button("P");
+            Button pasteButton = new Button("", new Glyph("FontAwesome", FontAwesome.Glyph.PENCIL));
             this.setGraphic(pasteButton);
             if(item.cells != null)
                 pasteButton.setOnAction(event -> {
