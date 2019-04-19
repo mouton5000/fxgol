@@ -38,8 +38,37 @@ public class Editor extends BorderPane {
         pane = new EditorPane();
         MenuBar bar = new MenuBar();
 
+        Menu fileMenu = new Menu("File");
+        MenuItem newItem = new MenuItem("New");
+        newItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
+        newItem.setOnAction(actionEvent -> {
+            pane.clear();
+            this.setTitle(null);
+        });
+        MenuItem openItem = new MenuItem("Open");
+        openItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+        openItem.setOnAction(actionEvent -> {
+            String filename = pane.open();
+            this.setTitle(filename);
+        });
+        MenuItem saveItem = new MenuItem("Save");
+        saveItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
+        saveItem.setOnAction(actionEvent -> {
+            String filename = pane.save();
+            this.setTitle(filename);
+        });
+        MenuItem saveAsItem = new MenuItem("SaveAs");
+        saveAsItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+        saveAsItem.setOnAction(actionEvent -> {
+            String filename = pane.saveAs();
+            this.setTitle(filename);
+        });
+        MenuItem importItem = new MenuItem("Import");
+        fileMenu.getItems().addAll(newItem, openItem, saveItem, saveAsItem, importItem);
+
         Menu runMenu = new Menu("Run");
         MenuItem runItem = new MenuItem("Run");
+        runItem.setAccelerator(new KeyCodeCombination(KeyCode.F9));
         runItem.setOnAction(actionEvent -> {
 
             Stage stage = new Stage();
@@ -142,7 +171,7 @@ public class Editor extends BorderPane {
         oneStepItem.setOnAction(event -> this.pane.stepSelection());
 
         selectionMenu.getItems().addAll(cutItem, copyItem, pasteItem, deleteItem, new SeparatorMenuItem(), xMirrorItem, yMirrorItem, rotateItem, oneStepItem);
-        bar.getMenus().addAll(runMenu, selectionMenu);
+        bar.getMenus().addAll(fileMenu, runMenu, selectionMenu);
 
         this.setOnMouseDragged(event -> {
             if(event.isStillSincePress())
@@ -203,6 +232,12 @@ public class Editor extends BorderPane {
 
     private void translate(double dx, double dy) {
         pane.translate(dx, dy);
+    }
+
+    private void setTitle(String title){
+        if(title == null)
+            title = "";
+        ((Stage)this.getScene().getWindow()).setTitle(title);
     }
 
 }

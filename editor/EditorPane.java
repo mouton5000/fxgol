@@ -8,7 +8,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import util.RunLenghtEncodingTranslator;
 
+import java.io.*;
 import java.util.LinkedList;
 
 class EditorPane extends Pane {
@@ -26,8 +30,10 @@ class EditorPane extends Pane {
     private double pressedY;
 
     private Rectangle selectionRectangle;
-    Selection selection;
+    private Selection selection;
     private Selection clipboardSelection;
+
+    private File currentSaveFile;
 
     EditorPane() {
         lines = new LinkedList<>();
@@ -121,13 +127,7 @@ class EditorPane extends Pane {
 
         this.setOnScroll(event -> {
             boolean zoomIn = (event.getDeltaY() > 0);
-            double sx = scale.getX() + Params.STEPZOOM * (zoomIn?1:-1);
-            double sy = scale.getY() + Params.STEPZOOM * (zoomIn?1:-1);
-            if(sx > Params.MINZOOM && sy > Params.MINZOOM && sx < Params.MAXZOOM && sy < Params.MAXZOOM) {
-                scale.setX(sx);
-                scale.setY(sy);
-            }
-            updateWidthAndHeight(this.getWidth(), this.getHeight());
+            this.zoom(Params.STEPZOOM * (zoomIn?1:-1));
         });
 
         this.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
@@ -252,6 +252,85 @@ class EditorPane extends Pane {
         });
     }
 
+    void clear() {
+        selection.clear();
+        if(clipboardSelection != null)
+            clipboardSelection.clear();
+        this.getChildren().removeIf(child -> child instanceof AliveCircle);
+
+        this.zoom(1 - scale.getX());
+        this.translate(-this.getTranslateX(), -this.getTranslateY());
+    }
+
+    String open() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open file");
+        if(currentSaveFile != null)
+            fileChooser.setInitialDirectory(currentSaveFile.getParentFile());
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Run lenght encoding (.rle)", "*.rle"));
+        File file = fileChooser.showOpenDialog(this.getScene().getWindow());
+        if(file == null)
+            return null;
+
+        currentSaveFile = file;
+        StringBuilder lines = new StringBuilder();
+        try {
+            BufferedReader bufferedReader =
+                    new BufferedReader(new FileReader(file));
+            String line;
+            while((line = bufferedReader.readLine()) != null){
+                lines.append(line);
+                lines.append("\n");
+            }
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        this.clear();
+        boolean[][] cells = RunLenghtEncodingTranslator.fromRLE(lines.toString());
+        this.copyPattern(cells);
+        this.displayClipboardSelection();
+        this.pasteSelection();
+        return file.getAbsolutePath();
+    }
+
+    String save(){
+        if(currentSaveFile == null)
+            return saveAs();
+        else
+            return saveAs(currentSaveFile);
+    }
+
+    String saveAs(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save file");
+        if(currentSaveFile != null)
+            fileChooser.setInitialDirectory(currentSaveFile.getParentFile());
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Run lenght encoding (.rle)", "*.rle"));
+        File file = fileChooser.showSaveDialog(this.getScene().getWindow());
+        if(file == null)
+            return null;
+        if(!file.getName().endsWith(".rle"))
+            file = new File(file.getAbsolutePath() + ".rle");
+        return saveAs(file);
+    }
+
+    String saveAs(File file){
+        currentSaveFile = file;
+
+        boolean[][] cells = this.getCells();
+        String rleDescription = RunLenghtEncodingTranslator.toRLE(cells);
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write(rleDescription);
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file.getAbsolutePath();
+    }
+
     private int getFirstVisibleColumn(){
         return Params.getColumn(scale.getPivotX() - this.getWidth() / (2 * scale.getX())) + 1;
     }
@@ -288,6 +367,9 @@ class EditorPane extends Pane {
         return circle;
     }
 
+    boolean[][] getCells(){
+        return getCells(true, false, -1, -1, -1, -1);
+    }
 
     boolean[][] getCells(boolean infiniteSize, boolean allCells,
                          int offsetLine, int offsetColumn,
@@ -348,6 +430,16 @@ class EditorPane extends Pane {
         double height = Math.max(Math.abs(-2 * offsetY - this.getHeight()), Math.abs(-2 * offsetY + this.getHeight()));
 
         updateWidthAndHeight(width, height);
+    }
+
+    void zoom(double dz){
+        double sx = scale.getX() + dz;
+        double sy = scale.getY() + dz;
+        if(sx > Params.MINZOOM && sy > Params.MINZOOM && sx < Params.MAXZOOM && sy < Params.MAXZOOM) {
+            scale.setX(sx);
+            scale.setY(sy);
+            updateWidthAndHeight(this.getWidth(), this.getHeight());
+        }
     }
 
     private void updateWidthAndHeight(double width, double height){

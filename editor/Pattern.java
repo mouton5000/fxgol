@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
+import util.RunLenghtEncodingTranslator;
 
 import java.util.regex.Matcher;
 
@@ -18,56 +19,8 @@ class Pattern{
 
         this.pane = pane;
         this.name = name;
+        cells = RunLenghtEncodingTranslator.fromRLE(rleDescription);
 
-        String[] lines = rleDescription.split("\\n");
-
-        cells = null;
-
-        int index;
-        for(index = 0; index < lines.length; index++){
-            String line = lines[index].trim();
-            if(line.startsWith("#"))
-                continue;
-            java.util.regex.Pattern p = java.util.regex.Pattern.compile("x = (\\d+), y = (\\d+).*");
-            Matcher m = p.matcher(line);
-            if(m.matches()) {
-                cells = new boolean[Integer.valueOf(m.group(2))][Integer.valueOf(m.group(1))];
-                break;
-            }
-
-        }
-
-        if(cells == null)
-            return;
-
-        int value = 0;
-        int l = 0;
-        int c = 0;
-        for(int i = index + 1; i < lines.length; i++){
-            String line = lines[i].trim();
-            for(int j = 0; j < line.length(); j++){
-                char ch = line.charAt(j);
-                if(ch == 'b' || ch == 'o'){
-                    if(value == 0)
-                        value = 1;
-                    if(ch == 'o') {
-                        for (int k = c; k < c + value; k++)
-                            cells[l][k] = true;
-                    }
-                    c += value;
-                    value = 0;
-                }
-                else if(ch == '$'){
-                    if(value == 0)
-                        value = 1;
-                    l += value;
-                    c = 0;
-                    value = 0;
-                }
-                else
-                    value = 10 * value + Character.getNumericValue(ch);
-            }
-        }
     }
 }
 
