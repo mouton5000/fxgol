@@ -175,17 +175,17 @@ public class Editor extends BorderPane {
             event.consume();
         });
 
-        this.setMinWidth(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
-        this.setMinHeight(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
-        pane.setTranslateX(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH / 2D);
-        pane.setTranslateY(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH / 2D);
-
         statusBar = new StatusBar();
         statusBar.setPrefHeight(Params.STATUSBAR_PREF_HEIGHT);
         clearStatusBarText();
 
-
         editorMenu = new EditorMenu(pane);
+
+        this.setMinWidth(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
+        this.setMinHeight(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
+//        pane.setTranslateX((Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH - Params.EDITOR_LEFT_MENU_PREF_WIDTH) / 2D);
+//        pane.setTranslateY((Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH - Params.EDITOR_LEFT_MENU_PREF_WIDTH) / 2D);
+
 
         this.setCenter(pane);
         this.setTop(bar);

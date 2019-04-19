@@ -7,6 +7,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Scale;
 
 import java.util.LinkedList;
 
@@ -19,6 +20,7 @@ class EditorPane extends Pane {
     private double offsetY;
     private double maxWidth;
     private double maxHeight;
+    private Scale scale;
 
     private double pressedX;
     private double pressedY;
@@ -114,10 +116,26 @@ class EditorPane extends Pane {
             event.consume();
         });
 
+        scale = new Scale();
+        this.getTransforms().add(scale);
+
+        this.setOnScroll(event -> {
+            boolean zoomIn = (event.getDeltaY() > 0);
+            double sx = scale.getX() + Params.STEPZOOM * (zoomIn?1:-1);
+            double sy = scale.getY() + Params.STEPZOOM * (zoomIn?1:-1);
+            if(sx > Params.MINZOOM && sy > Params.MINZOOM && sx < Params.MAXZOOM && sy < Params.MAXZOOM) {
+                scale.setX(sx);
+                scale.setY(sy);
+            }
+            updateWidthAndHeight(this.getWidth(), this.getHeight());
+        });
+
         this.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
             double width = newVal.getWidth();
             double height = newVal.getHeight();
             updateWidthAndHeight(width, height);
+            scale.setPivotX(scale.getPivotX() + (width - oldVal.getWidth()) / 2);
+            scale.setPivotY(scale.getPivotY() + (height - oldVal.getHeight()) / 2);
         });
 
         selectionRectangle = new Rectangle(0, 0, 0, 0);
@@ -235,11 +253,11 @@ class EditorPane extends Pane {
     }
 
     private int getFirstVisibleColumn(){
-        return Params.getColumn(-this.getTranslateX()) + 1;
+        return Params.getColumn(scale.getPivotX() - this.getWidth() / (2 * scale.getX())) + 1;
     }
 
     private int getFirstVisibleLine(){
-        return Params.getColumn(-this.getTranslateY()) + 1;
+        return Params.getColumn(scale.getPivotY() - this.getHeight() / (2 * scale.getY())) + 1;
     }
 
     AliveCircle addCircle(int line, int column){
@@ -314,8 +332,14 @@ class EditorPane extends Pane {
     }
 
     void translate(double dx, double dy){
+        dx = dx / scale.getX();
+        dy = dy / scale.getY();
+
         this.setTranslateX(this.getTranslateX() + dx);
         this.setTranslateY(this.getTranslateY() + dy);
+
+        scale.setPivotX(scale.getPivotX() - dx);
+        scale.setPivotY(scale.getPivotY() - dy);
 
         offsetX -= dx;
         offsetY -= dy;
@@ -327,6 +351,9 @@ class EditorPane extends Pane {
     }
 
     private void updateWidthAndHeight(double width, double height){
+        width = width / scale.getX();
+        height = height / scale.getY();
+
         if(width > maxWidth || height > maxHeight) {
             maxWidth = Math.max(maxWidth, width);
             maxHeight = Math.max(maxHeight, height);

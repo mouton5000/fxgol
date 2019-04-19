@@ -13,6 +13,10 @@ public class Params {
     public static final int EDITOR_LEFT_MENU_PREF_WIDTH = 200;
     public static final Color SELECTION_COLOR = new Color(0.3, 0.3, 0.3, 0.6);
 
+    public static final double STEPZOOM = 0.1;
+    public static final double MINZOOM = 0.1;
+    public static final double MAXZOOM = 1.7;
+
     public static double getX(int column){
         return column * Params.DEFAULT_CELLS_WIDTH;
     }
