@@ -144,7 +144,7 @@ class Settings {
         );
 
         fpsTextField.textProperty().addListener((observableValue, old, value) -> {
-                    if(!value.matches("\\d*\\.?\\d*"))
+                    if(!value.matches("-?\\d*\\.?\\d*"))
                         fpsTextField.setText(old);
                 }
         );
