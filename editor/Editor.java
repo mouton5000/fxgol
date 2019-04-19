@@ -185,7 +185,7 @@ public class Editor extends BorderPane {
         clearStatusBarText();
 
 
-        editorMenu = new EditorMenu();
+        editorMenu = new EditorMenu(pane);
 
         this.setCenter(pane);
         this.setTop(bar);

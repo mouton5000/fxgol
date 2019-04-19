@@ -16,11 +16,12 @@ import util.Ressources;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class EditorMenu extends Group {
 
-    public EditorMenu() {
+    public EditorMenu(EditorPane pane) {
 
         VBox vbox = new VBox();
 
@@ -28,7 +29,15 @@ public class EditorMenu extends Group {
         ChoiceBox<String> categories = new ChoiceBox<>();
 
         Callback<ListView<Pattern>, ListCell<Pattern>> patternCellFactory = param -> new PatternCell();
-        ChangeListener<Pattern> patternSelectedListener = (observable, oldValue, newValue) -> System.out.println(newValue.name);
+//        ChangeListener<Pattern> patternSelectedListener =
+//                (observable, oldValue, newValue) -> {
+//            boolean[][] cells = newValue.cells;
+//            if(cells == null)
+//                return;
+//            pane.copyPattern(cells);
+//        };
+
+
         ArrayList<ListView<Pattern>> lists = new ArrayList<>();
 
         File patternsDir = new File(Ressources.getRessource("patterns"));
@@ -36,7 +45,7 @@ public class EditorMenu extends Group {
             categories.getItems().add(file.getName());
             ListView<Pattern> list = new ListView<>();
             list.setCellFactory(patternCellFactory);
-            list.getSelectionModel().selectedItemProperty().addListener(patternSelectedListener);
+//            list.getSelectionModel().selectedItemProperty().addListener(patternSelectedListener);
             for(File patternFile : file.listFiles()){
                 String name = patternFile.getName();
                 name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
@@ -51,7 +60,7 @@ public class EditorMenu extends Group {
                     StringBuilder sb = new StringBuilder();
                     String line;
                     while((line = br.readLine()) != null)
-                        sb.append(line);
+                        sb.append(line + "\n");
                     description = sb.toString();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -60,7 +69,7 @@ public class EditorMenu extends Group {
                 }
 
 
-                Pattern pattern = new Pattern(name, description);
+                Pattern pattern = new Pattern(pane, name, description);
                 list.getItems().add(pattern);
             }
             lists.add(list);
