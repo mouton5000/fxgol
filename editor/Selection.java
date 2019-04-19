@@ -4,6 +4,7 @@ import editor.global.Params;
 import javafx.event.Event;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
@@ -22,12 +23,16 @@ class Selection extends Group {
 
         this.setOnMouseClicked(Event::consume);
         this.setOnMousePressed(event -> {
+            if(event.getButton() != MouseButton.PRIMARY)
+                return;
             this.dragX = event.getX();
             this.dragY = event.getY();
             event.consume();
         });
         this.setOnMouseReleased(Event::consume);
         this.setOnMouseDragged(event -> {
+            if(event.getButton() != MouseButton.PRIMARY)
+                return;
             int dline = (int)((event.getY() - dragY) / Params.DEFAULT_CELLS_WIDTH);
             int dcolumn = (int)((event.getX() - dragX) / Params.DEFAULT_CELLS_WIDTH);
             if(dline != 0 || dcolumn != 0) {
