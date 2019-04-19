@@ -14,8 +14,8 @@ public class InfiniteGameOfLife implements GameOfLife {
     public InfiniteGameOfLife(GameOfLifeGraphicsContext gc, boolean[][] cells) {
         this.gc = gc;
 
-        currentNbLines = (cells[0].length / BASIC_SIZE + 1) * BASIC_SIZE;
-        currentNbColumns = (cells.length / BASIC_SIZE + 1) * BASIC_SIZE;
+        currentNbLines = (cells.length / BASIC_SIZE + 1) * BASIC_SIZE;
+        currentNbColumns = (cells[0].length / BASIC_SIZE + 1) * BASIC_SIZE;
 
         this.cells = new byte[currentNbLines + 2][currentNbColumns + 2];
 
