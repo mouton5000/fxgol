@@ -60,12 +60,8 @@ public class Viewer extends Group{
                 if(fps != -1 && (currentTime - lastUpdate) / 1000000 <= 1000 / fps)
                     return;
                 lastUpdate = currentTime;
-                if(generation <= 1000) {
-                    gol.nextGeneration();
-                    generation++;
-                }
-                else
-                    timer.stop();
+                gol.nextGeneration();
+                generation++;
             }
         };
 
