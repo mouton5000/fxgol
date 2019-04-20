@@ -67,37 +67,45 @@ class Selection extends Group {
     }
 
     void addRectangle(int line, int column, int nbLines, int nbColumns){
-        Rectangle rectangle = new Rectangle(Params.getX(column) - this.getLayoutX(),
-                Params.getY(line) - this.getLayoutY(),
-                nbColumns * Params.DEFAULT_CELLS_WIDTH,
-                nbLines * Params.DEFAULT_CELLS_WIDTH);
-        rectangle.setFill(Params.SELECTION_COLOR);
-        this.getChildren().add(rectangle);
-            int newOffsetLine = Math.min(offsetLine, line);
-            int newOffsetColumn = Math.min(offsetColumn, column);
-            int newNbLines =
-                    Math.max(((cells == null)?Integer.MIN_VALUE:offsetLine + cells.length), line + nbLines) - newOffsetLine;
-            int newNbColumns =
-                    Math.max(((cells == null)?Integer.MIN_VALUE:offsetColumn + cells[0].length), column + nbColumns) - newOffsetColumn;
-            Boolean[][] newCells = new Boolean[newNbLines][newNbColumns];
-            if(cells != null) {
-                for (int l = 0; l < cells.length; l++) {
-                    System.arraycopy(cells[l], 0,
-                            newCells[offsetLine - newOffsetLine + l], offsetColumn - newOffsetColumn,
-                            cells[0].length);
-                }
+        for(int l = line; l < line + nbLines; l++){
+            for(int c = column; c < column + nbColumns; c++){
+                Rectangle rectangle = new Rectangle(
+                        Params.getX(c) + 1 - this.getLayoutX(),
+                        Params.getY(l) + 1- this.getLayoutY(),
+                        Params.DEFAULT_CELLS_WIDTH - 2,
+                        Params.DEFAULT_CELLS_WIDTH - 2
+                );
+                rectangle.setFill(Params.SELECTION_COLOR);
+                this.getChildren().add(rectangle);
+                rectangle.toBack();
             }
+        }
 
-            for(int l = line; l < line + nbLines; l++){
-                for(int c = column; c < column + nbColumns; c++){
-                    if(newCells[l - newOffsetLine][c - newOffsetColumn] == null)
-                        newCells[l - newOffsetLine][c - newOffsetColumn] = false;
-                }
+        int newOffsetLine = Math.min(offsetLine, line);
+        int newOffsetColumn = Math.min(offsetColumn, column);
+        int newNbLines =
+                Math.max(((cells == null)?Integer.MIN_VALUE:offsetLine + cells.length), line + nbLines) - newOffsetLine;
+        int newNbColumns =
+                Math.max(((cells == null)?Integer.MIN_VALUE:offsetColumn + cells[0].length), column + nbColumns) - newOffsetColumn;
+        Boolean[][] newCells = new Boolean[newNbLines][newNbColumns];
+        if(cells != null) {
+            for (int l = 0; l < cells.length; l++) {
+                System.arraycopy(cells[l], 0,
+                        newCells[offsetLine - newOffsetLine + l], offsetColumn - newOffsetColumn,
+                        cells[0].length);
             }
+        }
 
-            offsetLine = newOffsetLine;
-            offsetColumn = newOffsetColumn;
-            cells = newCells;
+        for(int l = line; l < line + nbLines; l++){
+            for(int c = column; c < column + nbColumns; c++){
+                if(newCells[l - newOffsetLine][c - newOffsetColumn] == null)
+                    newCells[l - newOffsetLine][c - newOffsetColumn] = false;
+            }
+        }
+
+        offsetLine = newOffsetLine;
+        offsetColumn = newOffsetColumn;
+        cells = newCells;
     }
 
     void addCircle(int line, int column){

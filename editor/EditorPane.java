@@ -35,6 +35,8 @@ class EditorPane extends Pane {
 
     private File currentSaveFile;
 
+    private boolean selectionEraseMode;
+
     EditorPane() {
         lines = new LinkedList<>();
         columns = new LinkedList<>();
@@ -139,12 +141,14 @@ class EditorPane extends Pane {
         });
 
         selectionRectangle = new Rectangle(0, 0, 0, 0);
-        selectionRectangle.setFill(Params.SELECTION_COLOR);
+        selectionRectangle.setFill(Params.SELECTION_RECTANGLE_COLOR);
         selectionRectangle.setVisible(false);
 
         selection = new Selection();
-
         this.getChildren().addAll(selectionRectangle, selection);
+        selection.toBack();
+        selectionRectangle.toFront();
+        selectionEraseMode = false;
     }
 
     void cutSelection(){
@@ -189,6 +193,11 @@ class EditorPane extends Pane {
         clipboardSelection.setOffset(this.getFirstVisibleLine(), this.getFirstVisibleColumn());
         clipboardSelection.setVisible(true);
         selection = clipboardSelection;
+        if(selectionEraseMode)
+            selection.toFront();
+        else
+            selection.toBack();
+        selectionRectangle.toFront();
         clipboardSelection = null;
         copySelection();
     }
@@ -199,10 +208,15 @@ class EditorPane extends Pane {
         for(int line = 0; line < selection.cells.length; line++){
             for(int column = 0; column < selection.cells[0].length; column++){
                 Boolean alive = selection.cells[line][column];
-                if(alive == null || !alive)
+                if(alive == null)
                     continue;
-                if(this.getCircle(line + selection.offsetLine, column + selection.offsetColumn) == null)
-                    this.addCircle(line + selection.offsetLine, column + selection.offsetColumn);
+                if(alive){
+                    if(this.getCircle(line + selection.offsetLine, column + selection.offsetColumn) == null)
+                        this.addCircle(line + selection.offsetLine, column + selection.offsetColumn);
+                    }
+                else if(selectionEraseMode) {
+                    this.removeCircle(line + selection.offsetLine, column + selection.offsetColumn);
+                }
             }
         }
         selection.clear();
@@ -345,6 +359,10 @@ class EditorPane extends Pane {
 
         AliveCircle circle = new AliveCircle(cx, cy, Params.DEFAULT_CIRCLE_RADIUS, line, column);
         this.getChildren().add(circle);
+        if(selectionEraseMode)
+            circle.toBack();
+        else
+            circle.toFront();
         return circle;
     }
 
@@ -499,5 +517,13 @@ class EditorPane extends Pane {
             }
         }
 
+    }
+
+    void setSelectionEraseMode(boolean selectionEraseMode) {
+        this.selectionEraseMode = selectionEraseMode;
+        if(selectionEraseMode)
+            selection.toFront();
+        else
+            selection.toBack();
     }
 }

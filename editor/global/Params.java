@@ -11,7 +11,8 @@ public class Params {
 
     public static final int STATUSBAR_PREF_HEIGHT = 30;
     public static final int EDITOR_LEFT_MENU_PREF_WIDTH = 200;
-    public static final Color SELECTION_COLOR = new Color(0.3, 0.3, 0.3, 0.6);
+    public static final Color SELECTION_RECTANGLE_COLOR = new Color(0.3, 0.3, 0.3, 0.6);
+    public static final Color SELECTION_COLOR = new Color(0.5, 0.5, 0.5, 1);
 
     public static final double STEPZOOM = 0.1;
     public static final double MINZOOM = 0.1;

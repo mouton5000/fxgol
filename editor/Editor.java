@@ -220,6 +220,8 @@ public class Editor extends BorderPane {
         this.setTop(bar);
         this.setBottom(statusBar);
         this.setLeft(editorMenu);
+
+        setSelectionEraseMode(false);
     }
 
     public void clearStatusBarText(){
@@ -240,4 +242,8 @@ public class Editor extends BorderPane {
         ((Stage)this.getScene().getWindow()).setTitle(title);
     }
 
+    void setSelectionEraseMode(boolean selectionEraseMode) {
+        pane.setSelectionEraseMode(selectionEraseMode);
+        editorMenu.setSelectionEraseMode(selectionEraseMode);
+    }
 }
