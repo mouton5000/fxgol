@@ -3,6 +3,7 @@ package editor;
 import com.sun.javafx.font.FontFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Tooltip;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 import util.RunLenghtEncodingTranslator;
@@ -35,10 +36,12 @@ class PatternCell extends ListCell<Pattern>{
         if(!empty) {
             Button pasteButton = new Button("", new Glyph("FontAwesome", FontAwesome.Glyph.PENCIL));
             this.setGraphic(pasteButton);
-            if(item.cells != null)
+            pasteButton.setTooltip(new Tooltip("Copy this pattern to clipboard."));
+            if(item.cells != null) {
                 pasteButton.setOnAction(event -> {
                     item.pane.copyPattern(item.cells);
                 });
+            }
         }
 
     }
