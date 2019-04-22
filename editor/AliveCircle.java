@@ -24,7 +24,7 @@ public class AliveCircle extends Group {
                 return;
 
             if(!mouseEvent.isControlDown()){
-                ((EditorPane)this.getParent()).getChildren().remove(this);
+                ((EditorPane)this.getParent()).removeCircleWithUndoRedoAction(this.line, this.column);
                 mouseEvent.consume();
             }
 

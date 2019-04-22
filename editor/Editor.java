@@ -10,8 +10,10 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
+import undoredo.UndoRedo;
 import viewer.view.Viewer;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class Editor extends BorderPane {
@@ -34,8 +36,12 @@ public class Editor extends BorderPane {
     private Double dragX;
     private Double dragY;
 
+    private UndoRedo undoRedo;
+
     public Editor() {
-        pane = new EditorPane();
+
+        undoRedo = new UndoRedo();
+        pane = new EditorPane(undoRedo);
         MenuBar bar = new MenuBar();
 
         Menu fileMenu = new Menu("File");
@@ -65,6 +71,28 @@ public class Editor extends BorderPane {
         });
         MenuItem importItem = new MenuItem("Import");
         fileMenu.getItems().addAll(newItem, openItem, saveItem, saveAsItem, importItem);
+
+        Menu editMenu = new Menu("Edit");
+        MenuItem undoItem = new MenuItem("Undo");
+        undoItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
+        undoItem.setOnAction(actionEvent -> {
+            try {
+                undoRedo.undo();
+            }
+            catch (NoSuchElementException ignored){
+            }
+        });
+
+        MenuItem redoItem = new MenuItem("Redo");
+        redoItem.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+        redoItem.setOnAction(actionEvent -> {
+            try {
+                undoRedo.redo();
+            }
+            catch (NoSuchElementException ignored){
+            }
+        });
+        editMenu.getItems().addAll(undoItem, redoItem);
 
         Menu runMenu = new Menu("Run");
         MenuItem runItem = new MenuItem("Run");
@@ -171,7 +199,7 @@ public class Editor extends BorderPane {
         oneStepItem.setOnAction(event -> this.pane.stepSelection());
 
         selectionMenu.getItems().addAll(cutItem, copyItem, pasteItem, deleteItem, new SeparatorMenuItem(), xMirrorItem, yMirrorItem, rotateItem, oneStepItem);
-        bar.getMenus().addAll(fileMenu, runMenu, selectionMenu);
+        bar.getMenus().addAll(fileMenu, editMenu, runMenu, selectionMenu);
 
         this.setOnMouseDragged(event -> {
             if(event.isStillSincePress())
@@ -210,11 +238,9 @@ public class Editor extends BorderPane {
 
         editorMenu = new EditorMenu(pane);
 
+
         this.setMinWidth(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
         this.setMinHeight(Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH);
-//        pane.setTranslateX((Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH - Params.EDITOR_LEFT_MENU_PREF_WIDTH) / 2D);
-//        pane.setTranslateY((Params.DEFAULT_NB_CELLS_PER_LINE * Params.DEFAULT_CELLS_WIDTH - Params.EDITOR_LEFT_MENU_PREF_WIDTH) / 2D);
-
 
         this.setCenter(pane);
         this.setTop(bar);

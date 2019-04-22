@@ -10,6 +10,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import undoredo.UndoRedo;
 import util.RunLenghtEncodingTranslator;
 
 import java.io.*;
@@ -37,7 +38,9 @@ class EditorPane extends Pane {
 
     private boolean selectionEraseMode;
 
-    EditorPane() {
+    private UndoRedo undoRedo;
+
+    EditorPane(UndoRedo undoRedo) {
         lines = new LinkedList<>();
         columns = new LinkedList<>();
 
@@ -51,7 +54,7 @@ class EditorPane extends Pane {
                 if(selection.isEmpty()) {
                     int column = Params.getColumn(event.getX());
                     int line = Params.getLine(event.getY());
-                    this.addCircle(line, column);
+                    this.addCircleWithUndoRedoAction(line, column);
                 }
                 else
                     pasteSelection();
@@ -149,6 +152,8 @@ class EditorPane extends Pane {
         selection.toBack();
         selectionRectangle.toFront();
         selectionEraseMode = false;
+
+        this.undoRedo = undoRedo;
     }
 
     void cutSelection(){
@@ -351,6 +356,18 @@ class EditorPane extends Pane {
 
     private int getFirstVisibleLine(){
         return Params.getColumn(scale.getPivotY() - this.getHeight() / (2 * scale.getY())) + 1;
+    }
+
+    void addCircleWithUndoRedoAction(int line, int column){
+        LinkedList<Coords> added = new LinkedList<>();
+        added.add(new Coords(line, column));
+        undoRedo.add(new AddRemoveCirclesAction(this, added, new LinkedList<>()));
+    }
+
+    void removeCircleWithUndoRedoAction(int line, int column){
+        LinkedList<Coords> removed = new LinkedList<>();
+        removed.add(new Coords(line, column));
+        undoRedo.add(new AddRemoveCirclesAction(this, new LinkedList<>(), removed));
     }
 
     AliveCircle addCircle(int line, int column){
