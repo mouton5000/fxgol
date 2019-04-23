@@ -221,31 +221,46 @@ class EditorPane extends Pane {
     void removeSelection(){
         if(selection.isEmpty())
             return;
+        Selection prev = new Selection(selection, this.undoRedo );
         selection.clear();
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(selection, prev, next));
     }
 
     void xMirrorSelection(){
         if(selection.isEmpty())
             return;
+        Selection prev = new Selection(selection, this.undoRedo );
         selection.xMirror();
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(selection, prev, next));
     }
 
     void yMirrorSelection(){
         if(selection.isEmpty())
             return;
+        Selection prev = new Selection(selection, this.undoRedo );
         selection.yMirror();
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(selection, prev, next));
     }
 
     void rotateSelection(){
         if(selection.isEmpty())
             return;
+        Selection prev = new Selection(selection, this.undoRedo );
         selection.rotate();
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(selection, prev, next));
     }
 
     void stepSelection(){
         if(selection.isEmpty())
             return;
+        Selection prev = new Selection(selection, this.undoRedo );
         selection.step();
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(selection, prev, next));
     }
 
     private void select(int line1, int column1, int line2, int column2){
