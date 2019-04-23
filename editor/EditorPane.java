@@ -149,7 +149,9 @@ class EditorPane extends Pane {
         selectionRectangle.setVisible(false);
 
         selection = new Selection(undoRedo);
-        this.getChildren().addAll(selectionRectangle, selection);
+        clipboardSelection = new Selection(undoRedo);
+        clipboardSelection.setVisible(false);
+        this.getChildren().addAll(selectionRectangle, selection, clipboardSelection);
         selection.toBack();
         selectionRectangle.toFront();
         selectionEraseMode = false;
@@ -167,18 +169,10 @@ class EditorPane extends Pane {
     void copySelection(){
         if(selection.isEmpty())
             return;
-        if(clipboardSelection != null)
-            this.getChildren().remove(clipboardSelection);
-        clipboardSelection = selection.copy();
-        clipboardSelection.setVisible(false);
-        this.getChildren().add(clipboardSelection);
+        this.clipboardSelection.copy(selection);
     }
 
     void copyPattern(boolean[][] cells){
-        if(clipboardSelection == null) {
-            clipboardSelection = new Selection(undoRedo);
-            this.getChildren().add(clipboardSelection);
-        }
         clipboardSelection.clear();
         clipboardSelection.addRectangle(0, 0, cells.length, cells[0].length);
         for(int line = 0; line < cells.length; line++){
@@ -193,19 +187,15 @@ class EditorPane extends Pane {
     }
 
     void displayClipboardSelection(){
-        if(clipboardSelection == null)
+        if(clipboardSelection.isEmpty())
             return;
-        selection.clear();
-        clipboardSelection.setOffset(this.getFirstVisibleLine(), this.getFirstVisibleColumn());
-        clipboardSelection.setVisible(true);
-        selection = clipboardSelection;
+        selection.copy(clipboardSelection);
+        selection.setOffset(this.getFirstVisibleLine(), this.getFirstVisibleColumn());
         if(selectionEraseMode)
             selection.toFront();
         else
             selection.toBack();
         selectionRectangle.toFront();
-        clipboardSelection = null;
-        copySelection();
     }
 
     void pasteSelection(){

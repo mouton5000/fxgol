@@ -323,30 +323,30 @@ class Selection extends Group {
         return this.cells == null;
     }
 
-    Selection copy(){
-        Selection selection = new Selection(undoRedo);
-        selection.setLayoutX(this.getLayoutX());
-        selection.setLayoutY(this.getLayoutY());
-        selection.setTranslateX(this.getTranslateX());
-        selection.setTranslateY(this.getTranslateY());
-        selection.offsetLine = this.offsetLine;
-        selection.offsetColumn = this.offsetColumn;
-        selection.cells = cells.clone();
-        for(Node child : this.getChildren()){
+    void copy(Selection selection){
+        this.clear();
+
+        this.setLayoutX(selection.getLayoutX());
+        this.setLayoutY(selection.getLayoutY());
+        this.setTranslateX(selection.getTranslateX());
+        this.setTranslateY(selection.getTranslateY());
+        this.offsetLine = selection.offsetLine;
+        this.offsetColumn = selection.offsetColumn;
+        this.cells = selection.cells.clone();
+        for(Node child : selection.getChildren()){
             if(child instanceof Rectangle){
                 Rectangle rectangle = (Rectangle)child;
                 Rectangle rectangle2 =
                         new Rectangle(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
                 rectangle2.setFill(Params.SELECTION_COLOR);
-                selection.getChildren().add(rectangle2);
+                this.getChildren().add(rectangle2);
             }
             else if(child instanceof Circle){
                 Circle circle = (Circle) child;
-                selection.getChildren().add(
+                this.getChildren().add(
                     new Circle(circle.getCenterX(), circle.getCenterY(), circle.getRadius())
                 );
             }
         }
-        return selection;
     }
 }
