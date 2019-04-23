@@ -59,6 +59,11 @@ class Selection extends Group {
         });
     }
 
+    private Selection(Selection selection, UndoRedo undoRedo){
+        this(undoRedo);
+        this.copy(selection);
+    }
+
     void translate(int dline, int dcolumn){
         offsetLine += dline;
         offsetColumn += dcolumn;
@@ -134,6 +139,9 @@ class Selection extends Group {
     }
 
     void xMirror(){
+        Selection prev = new Selection(this, this.undoRedo );
+
+
         double minX = Double.POSITIVE_INFINITY;
         double maxX = Double.NEGATIVE_INFINITY;
 
@@ -165,9 +173,14 @@ class Selection extends Group {
             }
         }
 
+
+        Selection next = new Selection(this, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(this, prev, next));
+
     }
 
     void yMirror(){
+        Selection prev = new Selection(this, this.undoRedo );
         double minY = Double.POSITIVE_INFINITY;
         double maxY = Double.NEGATIVE_INFINITY;
 
@@ -197,9 +210,13 @@ class Selection extends Group {
             cells[nbLines - 1 - line] = temp;
         }
 
+
+        Selection next = new Selection(this, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(this, prev, next));
     }
 
     void rotate(){
+        Selection prev = new Selection(this, this.undoRedo );
         double minX = Double.POSITIVE_INFINITY;
         double maxX = Double.NEGATIVE_INFINITY;
         double minY = Double.POSITIVE_INFINITY;
@@ -245,9 +262,13 @@ class Selection extends Group {
             for(int column = 0; column < newNbColumns; column++)
                 newCells[line][column] = cells[cells.length - 1 - column][line];
         cells = newCells;
+
+        Selection next = new Selection(this, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(this, prev, next));
     }
 
     void step(){
+        Selection prev = new Selection(this, this.undoRedo );
         int nbLines = cells.length;
         int nbColumns = cells[0].length;
         Boolean[][] newCells = new Boolean[nbLines + 2][nbColumns + 2];
@@ -308,6 +329,8 @@ class Selection extends Group {
                 }
             }
         }
+        Selection next = new Selection(this, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(this, prev, next));
     }
 
     void clear(){
