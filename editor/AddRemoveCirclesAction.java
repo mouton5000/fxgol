@@ -1,6 +1,8 @@
 package editor;
 
 import undoredo.UndoRedoAction;
+import util.Coords;
+
 import java.util.LinkedList;
 
 class AddRemoveCirclesAction implements UndoRedoAction {
@@ -29,15 +31,5 @@ class AddRemoveCirclesAction implements UndoRedoAction {
             pane.removeCircle(coords.line, coords.column);
         for(Coords coords : removedCircles)
             pane.addCircle(coords.line, coords.column);
-    }
-}
-
-class Coords {
-    int line;
-    int column;
-
-    public Coords(int line, int column) {
-        this.line = line;
-        this.column = column;
     }
 }

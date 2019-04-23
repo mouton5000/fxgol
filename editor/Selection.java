@@ -7,17 +7,22 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import undoredo.UndoRedo;
+import util.Coords;
 
 class Selection extends Group {
 
+    private UndoRedo undoRedo;
     int offsetLine;
     int offsetColumn;
 
     Boolean[][] cells;
 
     private double dragX, dragY;
+    private int movingLine, movingColumn;
 
-    Selection(){
+    Selection(UndoRedo undoRedo){
+        this.undoRedo = undoRedo;
         offsetLine = Integer.MAX_VALUE;
         offsetColumn = Integer.MAX_VALUE;
 
@@ -25,11 +30,12 @@ class Selection extends Group {
         this.setOnMousePressed(event -> {
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
-            this.dragX = event.getX();
-            this.dragY = event.getY();
+            this.dragX = (int)(event.getX() / Params.DEFAULT_CELLS_WIDTH) * Params.DEFAULT_CELLS_WIDTH;
+            this.dragY = (int)(event.getY() / Params.DEFAULT_CELLS_WIDTH) * Params.DEFAULT_CELLS_WIDTH;
+            this.movingLine = 0;
+            this.movingColumn = 0;
             event.consume();
         });
-        this.setOnMouseReleased(Event::consume);
         this.setOnMouseDragged(event -> {
             if(event.getButton() != MouseButton.PRIMARY)
                 return;
@@ -37,7 +43,18 @@ class Selection extends Group {
             int dcolumn = (int)((event.getX() - dragX) / Params.DEFAULT_CELLS_WIDTH);
             if(dline != 0 || dcolumn != 0) {
                 this.translate(dline, dcolumn);
+                this.movingLine += dline;
+                this.movingColumn += dcolumn;
             }
+            event.consume();
+        });
+        this.setOnMouseReleased(event -> {
+            Coords srcCoords = new Coords((int)(this.dragY / Params.DEFAULT_CELLS_WIDTH),
+                    (int)(this.dragX / Params.DEFAULT_CELLS_WIDTH));
+            Coords destCoords = new Coords(srcCoords.line + movingLine, srcCoords.column + movingColumn);
+            this.translate(srcCoords.line - destCoords.line, srcCoords.column - destCoords.column);
+            MoveSelectionAction action = new MoveSelectionAction(this, srcCoords, destCoords);
+            undoRedo.add(action);
             event.consume();
         });
     }
@@ -307,7 +324,7 @@ class Selection extends Group {
     }
 
     Selection copy(){
-        Selection selection = new Selection();
+        Selection selection = new Selection(undoRedo);
         selection.setLayoutX(this.getLayoutX());
         selection.setLayoutY(this.getLayoutY());
         selection.setTranslateX(this.getTranslateX());

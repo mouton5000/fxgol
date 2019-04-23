@@ -11,6 +11,7 @@ import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import undoredo.UndoRedo;
+import util.Coords;
 import util.RunLenghtEncodingTranslator;
 
 import java.io.*;
@@ -147,7 +148,7 @@ class EditorPane extends Pane {
         selectionRectangle.setFill(Params.SELECTION_RECTANGLE_COLOR);
         selectionRectangle.setVisible(false);
 
-        selection = new Selection();
+        selection = new Selection(undoRedo);
         this.getChildren().addAll(selectionRectangle, selection);
         selection.toBack();
         selectionRectangle.toFront();
@@ -175,7 +176,7 @@ class EditorPane extends Pane {
 
     void copyPattern(boolean[][] cells){
         if(clipboardSelection == null) {
-            clipboardSelection = new Selection();
+            clipboardSelection = new Selection(undoRedo);
             this.getChildren().add(clipboardSelection);
         }
         clipboardSelection.clear();
