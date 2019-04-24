@@ -16,6 +16,7 @@ import util.RunLenghtEncodingTranslator;
 
 import java.io.*;
 import java.util.LinkedList;
+import java.util.List;
 
 class EditorPane extends Pane {
 
@@ -264,17 +265,20 @@ class EditorPane extends Pane {
     }
 
     private void select(int line1, int column1, int line2, int column2){
+        Selection prev = new Selection(selection, this.undoRedo );
         selection.addRectangle(line1, column1, line2 - line1, column2 - column1);
-        this.getChildren().removeIf(child -> {
+        List<Coords> coordsList = new LinkedList<>();
+        for(Node child : this.getChildren()) {
             if (child instanceof AliveCircle) {
                 AliveCircle circle = (AliveCircle) child;
-                if(circle.line >= line1 && circle .line < line2 && circle.column >= column1 && circle.column < column2) {
-                    selection.addCircle(circle.line, circle.column);
-                    return true;
+                if (circle.line >= line1 && circle.line < line2 && circle.column >= column1 && circle.column < column2) {
+                    coordsList.add(new Coords(circle.line, circle.column));
+                    selection.addCircle(circle.line,circle.column);
                 }
             }
-            return false;
-        });
+        }
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new AddToSelectionAction(this, coordsList, selection, prev, next));
     }
 
     void clear() {
