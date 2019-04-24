@@ -36,7 +36,7 @@ class PatternCell extends ListCell<Pattern>{
         if(!empty) {
             Button pasteButton = new Button("", new Glyph("FontAwesome", FontAwesome.Glyph.PENCIL));
             this.setGraphic(pasteButton);
-            pasteButton.setTooltip(new Tooltip("Copy this pattern to clipboard."));
+            pasteButton.setTooltip(new Tooltip("Copy this pattern to selection."));
             if(item.cells != null) {
                 pasteButton.setOnAction(event -> {
                     item.pane.copyPattern(item.cells);

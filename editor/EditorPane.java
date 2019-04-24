@@ -174,17 +174,16 @@ class EditorPane extends Pane {
     }
 
     void copyPattern(boolean[][] cells){
-        clipboardSelection.clear();
-        clipboardSelection.addRectangle(0, 0, cells.length, cells[0].length);
+        if(!selection.isEmpty())
+            pasteSelection();
+        selection.addRectangle(0, 0, cells.length, cells[0].length);
         for(int line = 0; line < cells.length; line++){
             for(int column = 0; column < cells[0].length; column++){
                 if(cells[line][column]){
-                    clipboardSelection.addCircle(line, column);
+                    selection.addCircle(line, column);
                 }
             }
         }
-
-        displayClipboardSelection();
     }
 
     void displayClipboardSelection(){
