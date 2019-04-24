@@ -266,7 +266,7 @@ class EditorPane extends Pane {
     private void select(int line1, int column1, int line2, int column2){
         Selection prev = new Selection(selection, this.undoRedo );
         selection.addRectangle(line1, column1, line2 - line1, column2 - column1);
-        List<Coords> coordsList = new LinkedList<>();
+        LinkedList<Coords> coordsList = new LinkedList<>();
         for(Node child : this.getChildren()) {
             if (child instanceof AliveCircle) {
                 AliveCircle circle = (AliveCircle) child;
@@ -277,7 +277,11 @@ class EditorPane extends Pane {
             }
         }
         Selection next = new Selection(selection, this.undoRedo );
-        undoRedo.add(new AddToSelectionAction(this, coordsList, selection, prev, next));
+        undoRedo.add(
+                new CompositeAction(
+                        new AddRemoveCirclesAction(this, new LinkedList<>(), coordsList),
+                        new EditSelectionAction(selection, prev, next)
+                ));
     }
 
     void clear() {
