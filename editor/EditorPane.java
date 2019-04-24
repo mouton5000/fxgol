@@ -163,8 +163,11 @@ class EditorPane extends Pane {
     void cutSelection(){
         if(selection.isEmpty())
             return;
+        Selection prev = new Selection(selection, this.undoRedo );
         copySelection();
         selection.clear();
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(selection, prev, next));
     }
 
     void copySelection(){
@@ -176,6 +179,7 @@ class EditorPane extends Pane {
     void copyPattern(boolean[][] cells){
         if(!selection.isEmpty())
             pasteSelection();
+        Selection prev = new Selection(selection, this.undoRedo );
         selection.addRectangle(0, 0, cells.length, cells[0].length);
         for(int line = 0; line < cells.length; line++){
             for(int column = 0; column < cells[0].length; column++){
@@ -184,11 +188,14 @@ class EditorPane extends Pane {
                 }
             }
         }
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(selection, prev, next));
     }
 
     void displayClipboardSelection(){
         if(clipboardSelection.isEmpty())
             return;
+        Selection prev = new Selection(selection, this.undoRedo );
         selection.copy(clipboardSelection);
         selection.setOffset(this.getFirstVisibleLine(), this.getFirstVisibleColumn());
         if(selectionEraseMode)
@@ -196,11 +203,16 @@ class EditorPane extends Pane {
         else
             selection.toBack();
         selectionRectangle.toFront();
+        Selection next = new Selection(selection, this.undoRedo );
+        undoRedo.add(new EditSelectionAction(selection, prev, next));
     }
 
     void pasteSelection(){
         if(selection.isEmpty())
             return;
+        LinkedList<Coords> addedCircles = new LinkedList<>();
+        LinkedList<Coords> removedCircles = new LinkedList<>();
+        Selection prev = new Selection(selection, this.undoRedo );
         for(int line = 0; line < selection.cells.length; line++){
             for(int column = 0; column < selection.cells[0].length; column++){
                 Boolean alive = selection.cells[line][column];
@@ -208,14 +220,24 @@ class EditorPane extends Pane {
                     continue;
                 if(alive){
                     if(this.getCircle(line + selection.offsetLine, column + selection.offsetColumn) == null)
-                        this.addCircle(line + selection.offsetLine, column + selection.offsetColumn);
+                        addedCircles.add(new Coords(
+                                line + selection.offsetLine, column + selection.offsetColumn
+                        ));
                     }
-                else if(selectionEraseMode) {
-                    this.removeCircle(line + selection.offsetLine, column + selection.offsetColumn);
+                else if(selectionEraseMode && this.getCircle(line + selection.offsetLine, column + selection.offsetColumn) != null) {
+                    removedCircles.add(
+                            new Coords(line + selection.offsetLine, column + selection.offsetColumn)
+                    );
                 }
             }
         }
         selection.clear();
+        Selection next = new Selection(selection, this.undoRedo);
+        undoRedo.add(
+                new CompositeAction(
+                        new AddRemoveCirclesAction(this, addedCircles, removedCircles),
+                        new EditSelectionAction(selection, prev, next)
+                ));
     }
 
     void removeSelection(){
