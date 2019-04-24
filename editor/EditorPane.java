@@ -322,7 +322,6 @@ class EditorPane extends Pane {
         this.clear();
         boolean[][] cells = RunLenghtEncodingTranslator.fromRLE(lines.toString());
         this.copyPattern(cells);
-        this.displayClipboardSelection();
         this.pasteSelection();
         return file.getAbsolutePath();
     }
