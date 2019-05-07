@@ -16,7 +16,6 @@ import util.RunLenghtEncodingTranslator;
 
 import java.io.*;
 import java.util.LinkedList;
-import java.util.List;
 
 class EditorPane extends Pane {
 

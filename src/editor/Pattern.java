@@ -1,14 +1,11 @@
 package editor;
 
-import com.sun.javafx.font.FontFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tooltip;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 import util.RunLenghtEncodingTranslator;
-
-import java.util.regex.Matcher;
 
 class Pattern{
 
